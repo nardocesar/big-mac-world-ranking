@@ -1,0 +1,248 @@
+{
+  "name": "Submit a Big Mac review",
+  "description": "Share a visit. We create the review PR for you.",
+  "title": "[Review] ",
+  "body": [
+    {
+      "type": "markdown",
+      "attributes": {
+        "value": "## Original Big Mac only\nNo extras, no ingredients removed, and no special editions. Submit this form; automation creates a review PR for a maintainer to review. No fork or manual PR is needed.\n\nFor memory reviews, unknown dates, locations, and scores may be omitted. For scored reviews, all five scores and explanations, an exact date, and a Google Maps link are required."
+      }
+    },
+    {
+      "type": "dropdown",
+      "id": "form_version",
+      "attributes": {
+        "label": "Form version",
+        "options": [
+          "big-mac-review-v1"
+        ],
+        "default": 0
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "dropdown",
+      "id": "contribution_type",
+      "attributes": {
+        "label": "Contribution type",
+        "options": [
+          "New scored review",
+          "Review from memory",
+          "Correction"
+        ]
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "input",
+      "id": "original_issue",
+      "attributes": {
+        "label": "Original review issue number",
+        "description": "Corrections only: the original review issue number, not the PR number."
+      }
+    },
+    {
+      "type": "dropdown",
+      "id": "corrected_type",
+      "attributes": {
+        "label": "Corrected review type",
+        "description": "Corrections only: select the type of the replacement review.",
+        "options": [
+          "Scored review",
+          "Review from memory"
+        ]
+      }
+    },
+    {
+      "type": "input",
+      "id": "maps",
+      "attributes": {
+        "label": "Google Maps link",
+        "description": "Open the exact restaurant in Google Maps \u2192 Share \u2192 Copy link. Required for scored reviews. Unknown for a memory review? Leave blank and explain below."
+      }
+    },
+    {
+      "type": "input",
+      "id": "visit_date",
+      "attributes": {
+        "label": "Visit date",
+        "description": "YYYY-MM-DD for scored reviews. An approximate date is welcome for memory reviews."
+      }
+    },
+    {
+      "type": "dropdown",
+      "id": "order_type",
+      "attributes": {
+        "label": "Order type",
+        "options": [
+          "Dine-in",
+          "Takeout",
+          "Delivery"
+        ]
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "dropdown",
+      "id": "score_0",
+      "attributes": {
+        "label": "Flavor and balance score",
+        "description": "1 very poor \u00b7 2 below expectations \u00b7 3 good/standard \u00b7 4 very good \u00b7 5 exceptional",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "explanation_0",
+      "attributes": {
+        "label": "Flavor and balance explanation",
+        "description": "Briefly explain what you observed. Required for scored reviews."
+      }
+    },
+    {
+      "type": "dropdown",
+      "id": "score_1",
+      "attributes": {
+        "label": "Texture score",
+        "description": "1 very poor \u00b7 2 below expectations \u00b7 3 good/standard \u00b7 4 very good \u00b7 5 exceptional",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "explanation_1",
+      "attributes": {
+        "label": "Texture explanation",
+        "description": "Briefly explain what you observed. Required for scored reviews."
+      }
+    },
+    {
+      "type": "dropdown",
+      "id": "score_2",
+      "attributes": {
+        "label": "Temperature score",
+        "description": "1 very poor \u00b7 2 below expectations \u00b7 3 good/standard \u00b7 4 very good \u00b7 5 exceptional",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "explanation_2",
+      "attributes": {
+        "label": "Temperature explanation",
+        "description": "Briefly explain what you observed. Required for scored reviews."
+      }
+    },
+    {
+      "type": "dropdown",
+      "id": "score_3",
+      "attributes": {
+        "label": "Perceived freshness score",
+        "description": "1 very poor \u00b7 2 below expectations \u00b7 3 good/standard \u00b7 4 very good \u00b7 5 exceptional",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "explanation_3",
+      "attributes": {
+        "label": "Perceived freshness explanation",
+        "description": "Briefly explain what you observed. Required for scored reviews."
+      }
+    },
+    {
+      "type": "dropdown",
+      "id": "score_4",
+      "attributes": {
+        "label": "Assembly score",
+        "description": "1 very poor \u00b7 2 below expectations \u00b7 3 good/standard \u00b7 4 very good \u00b7 5 exceptional",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "explanation_4",
+      "attributes": {
+        "label": "Assembly explanation",
+        "description": "Briefly explain what you observed. Required for scored reviews."
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "experience",
+      "attributes": {
+        "label": "Overall experience",
+        "description": "What stood out? For memory reviews, state what is uncertain. Avoid adding headings starting with ###."
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "context",
+      "attributes": {
+        "label": "Optional context",
+        "description": "Price and currency, burger vs. meal, time before eating, service, atmosphere, and photo links. These do not affect scores. Photo links are recorded as text; use the source issue to view attachments."
+      }
+    },
+    {
+      "type": "checkboxes",
+      "id": "confirmations",
+      "attributes": {
+        "label": "Confirmations",
+        "options": [
+          {
+            "label": "I personally ate this Big Mac.",
+            "required": true
+          },
+          {
+            "label": "It was the original standard local recipe: no extras, no ingredients removed, and no special edition.",
+            "required": true
+          },
+          {
+            "label": "I have permission to share any photos included.",
+            "required": true
+          }
+        ]
+      }
+    }
+  ]
+}
