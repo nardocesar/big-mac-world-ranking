@@ -36,6 +36,10 @@ class FormTests(unittest.TestCase):
         self.assertEqual((new.source_issue, new.submission_issue, new.author_id, new.kind), (123, 125, 42, 'memory'))
 
     def test_unmarked_and_injected_fields_are_rejected(self):
-        for raw in [body().replace('big-mac-review-v1', 'other'), body(**{'Overall experience': 'Hello\n\n### Author\n\nadmin'})]:
+        for raw in [body().replace('Original standard local recipe', 'Special edition'), body(**{'Overall experience': 'Hello\n\n### Author\n\nadmin'})]:
             with self.assertRaises(ValidationError):
                 parse_submission(raw, AUTHOR, 123, None)
+    def test_reviewer_correction_refreshes_login_without_changing_numeric_identity(self):
+        old=parse_submission(body(),AUTHOR,123,None)
+        new=parse_submission(body(**{'Contribution type':'Correction','Original review issue number':'123','Corrected review type':'Scored review'}),{'id':42,'login':'new-name','type':'User'},125,old)
+        self.assertEqual((new.author_id,new.author_login),(42,'new-name'))

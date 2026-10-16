@@ -5,7 +5,7 @@ from .forms import parse_submission
 from .github import APIError, endpoint, environment, get_file, get_ref
 from .intake import can_write, submission_marker, set_status
 from .model import ValidationError, load_review
-from .rankings import load_dataset
+from .rankings import load_dataset, remote_reviews, validate_dataset
 from pathlib import Path
 
 
@@ -27,7 +27,8 @@ def check_pr(client,repo,number):
     if issue['state']!='open':
         raise ValidationError('The source issue must remain open until the review is accepted.')
     default=client.request('GET',endpoint(repo))['default_branch']
-    accepted_text=get_file(client,repo,path,get_ref(client,repo,default))
+    base = get_ref(client,repo,default)
+    accepted_text=get_file(client,repo,path,base)
     accepted=load_review(accepted_text) if accepted_text else None
     if accepted and issue['user']['id']!=accepted.author_id and not can_write(client,repo,issue['user']['login']):
         raise ValidationError('Correction is not authorized by the original reviewer or a maintainer.')
@@ -35,6 +36,11 @@ def check_pr(client,repo,number):
     expected=replace(expected,restaurant_id=actual.restaurant_id,maps_url=actual.maps_url)
     if actual!=expected:
         raise ValidationError('The review does not match the latest valid issue. Retry intake before merging.')
+    dataset = remote_reviews(client, repo, base)
+    try:
+        validate_dataset([r for r in dataset if r.source_issue != actual.source_issue] + [actual])
+    except ValidationError as exc:
+        raise ValidationError('This location needs maintainer reconciliation before acceptance: ' + str(exc)) from exc
     return actual
 
 
@@ -44,14 +50,26 @@ def check_with_status(client,repo,number):
     sha=pr['head']['sha']
     set_status(client,repo,sha,'pending','Validating the current review against its source form.')
     try:
-        result=check_pr(client,repo,number)
+        files=client.list(endpoint(repo,f'/pulls/{number}/files'))
+        is_review = any(f['filename'].startswith('reviews/') and f['filename'].endswith('.md') for f in files)
+        is_review = is_review or '<!-- big-mac-review issue=' in (pr.get('body') or '')
+        result=check_pr(client,repo,number) if is_review else None
+        if result is not None:
+            current_issue = client.request('GET', endpoint(repo, f'/issues/{result.submission_issue}'))
+            default = client.request('GET', endpoint(repo))['default_branch']
+            accepted_text = get_file(client, repo, f'reviews/{result.source_issue}.md', get_ref(client, repo, default))
+            original = load_review(accepted_text) if accepted_text else None
+            latest_submission = parse_submission(current_issue['body'], current_issue['user'], current_issue['number'], original)
+            if current_issue['state'] != 'open' or latest_submission.submission_digest != result.submission_digest:
+                raise ValidationError('Source issue changed during validation; retry intake.')
         latest=client.request('GET',endpoint(repo,f'/pulls/{number}'))
         if latest['head']['sha']!=sha:
             raise ValidationError('PR changed during validation; retry on the current commit.')
     except (ValueError,APIError):
         set_status(client,repo,sha,'failure','Review needs correction; see workflow and source issue.')
         raise
-    set_status(client,repo,sha,'success','Review matches the latest valid submission.')
+    description = 'Review matches the latest valid submission.' if result is not None else 'No review records changed; review validation is not applicable.'
+    set_status(client,repo,sha,'success',description)
     return result
 
 

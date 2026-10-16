@@ -6,8 +6,8 @@ import json
 import re
 from .model import CRITERIA, CONFIRMATIONS, Review, ValidationError, normalize_maps_url, restaurant_key, positive_int
 
-MARKER = 'big-mac-review-v1'
-BASE_FIELDS = ('Form version', 'Contribution type', 'Original review issue number', 'Corrected review type', 'Google Maps link', 'Visit date', 'Order type')
+MARKER = 'Original standard local recipe'
+BASE_FIELDS = ('Big Mac recipe', 'Contribution type', 'Original review issue number', 'Corrected review type', 'Google Maps link', 'Visit date', 'Order type')
 FIELDS = BASE_FIELDS + tuple(x for criterion in CRITERIA for x in (f'{criterion} score', f'{criterion} explanation')) + ('Overall experience', 'Optional context', 'Confirmations')
 
 
@@ -22,7 +22,7 @@ def sections(body: str) -> dict[str, str]:
             raise ValidationError(f'Unknown or duplicate form heading: {name}. Keep the generated form headings unchanged.')
         value = body[match.end():headings[i + 1].start() if i + 1 < len(headings) else len(body)].strip()
         result[name] = '' if value == '_No response_' else value
-    if result.get('Form version') != MARKER:
+    if result.get('Big Mac recipe') != MARKER:
         raise ValidationError('Use the Submit a review form linked in the README.')
     return result
 
@@ -79,7 +79,9 @@ def parse_submission(body: str, author: dict, issue_number: int, existing: Revie
             explanations[criterion] = fields.get(f'{criterion} explanation', '')
     digest = hashlib.sha256(json.dumps([body, author['id'], author['login'], issue_number], ensure_ascii=True).encode()).hexdigest()
     review = Review(1, target if correction else issue_number, issue_number,
-                    existing.author_id if correction else author['id'], existing.author_login if correction else author['login'],
+                    existing.author_id if correction else author['id'],
+                    existing.author_login if correction and author['id'] != existing.author_id else author['login'],
+                    existing.author_login_issue if correction and author['id'] != existing.author_id else issue_number,
                     kind, restaurant_key(maps) if maps else None, maps, maps, visit_date,
                     raw_date if visit_date is None else '', fields.get('Order type', ''), scores, explanations,
                     fields.get('Overall experience', ''), fields.get('Optional context', ''), digest, True)

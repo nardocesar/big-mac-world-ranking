@@ -2,7 +2,7 @@ from copy import deepcopy
 
 AUTHOR = {'login': 'traveler', 'id': 42, 'type': 'User'}
 FIELDS = {
-    'Form version': 'big-mac-review-v1',
+    'Big Mac recipe': 'Original standard local recipe',
     'Contribution type': 'New scored review',
     'Original review issue number': '_No response_',
     'Corrected review type': '_No response_',

@@ -77,6 +77,7 @@ class Review:
     submission_issue: int
     author_id: int
     author_login: str
+    author_login_issue: int
     kind: str
     restaurant_id: str | None
     maps_url: str | None
@@ -98,8 +99,10 @@ class Review:
     def validate(self):
         if type(self.schema_version) is not int or self.schema_version != 1:
             raise ValidationError('Unsupported review schema version.')
-        for key in ('source_issue', 'submission_issue', 'author_id'):
+        for key in ('source_issue', 'submission_issue', 'author_id', 'author_login_issue'):
             positive_int(getattr(self, key), key)
+        if not self.source_issue <= self.author_login_issue <= self.submission_issue:
+            raise ValidationError("Reviewer login observation must belong to this review’s history.")
         if self.submission_issue < self.source_issue:
             raise ValidationError('A correction cannot predate the original issue.')
         if not isinstance(self.author_login, str) or not re.fullmatch(r'[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})', self.author_login):

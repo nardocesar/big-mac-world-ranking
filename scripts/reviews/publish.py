@@ -1,33 +1,8 @@
 """Publish both ranking pages from a fresh accepted-data snapshot."""
 import argparse
-import base64
-import re
 from .github import APIError, create_commit, endpoint, environment, get_file, get_ref
 from .intake import feedback
-from .model import ValidationError, load_review
-from .rankings import outputs, validate_dataset
-
-
-def remote_reviews(client,repo,sha):
-    commit=client.request('GET',endpoint(repo,'/git/commits/'+sha))
-    tree=client.request('GET',endpoint(repo,'/git/trees/'+commit['tree']['sha']+'?recursive=1'))
-    if tree.get('truncated'):
-        raise ValidationError('Repository tree is truncated; refusing to publish a partial ranking.')
-    reviews=[]
-    for item in tree['tree']:
-        path=item['path']
-        if not path.startswith('reviews/') or not path.endswith('.md'):
-            continue
-        if not re.fullmatch(r'reviews/[1-9][0-9]*\.md',path) or item.get('mode')!='100644' or item['type']!='blob':
-            raise ValidationError('Accepted reviews must be regular numeric Markdown files directly inside reviews/.')
-        blob=client.request('GET',endpoint(repo,'/git/blobs/'+item['sha']))
-        if blob.get('encoding')!='base64':
-            raise ValidationError('Unexpected review blob encoding.')
-        review=load_review(base64.b64decode(blob['content']).decode())
-        if path!=f'reviews/{review.source_issue}.md':
-            raise ValidationError('Review filename does not match its original source issue.')
-        reviews.append(review)
-    return validate_dataset(reviews)
+from .rankings import outputs, remote_reviews
 
 
 def acknowledge(client,repo,reviews):

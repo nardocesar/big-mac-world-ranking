@@ -7,7 +7,7 @@ import re
 from urllib.parse import urlencode
 from .forms import MARKER, original_issue, parse_submission
 from .github import APIError, commit_files, endpoint, environment, get_file, get_ref
-from .model import ValidationError, dump_review, load_review, positive_int
+from .model import ValidationError, dump_review, load_review, positive_int, safe_text
 
 STATUS = 'review/latest-submission'
 COMMENT_MARKER = '<!-- big-mac-review-feedback-v1 -->'
@@ -57,6 +57,22 @@ def pending_for_issue(client,repo,number):
     return [p for p in prs if submission_marker(number) in (p.get('body') or '') and p['head']['repo']['full_name']==repo]
 
 
+
+def resolve_source_issue(client, repo, issue_number):
+    """Resolve a numeric lock key using trusted API state; never emit user text."""
+    positive_int(issue_number, 'Issue number')
+    pending = pending_for_issue(client, repo, issue_number)
+    if pending:
+        match = re.fullmatch(r'codex/review-([1-9][0-9]*)', pending[0]['head']['ref'])
+        if match:
+            return int(match.group(1))
+    issue = client.request('GET', endpoint(repo, f'/issues/{issue_number}'))
+    try:
+        return original_issue(issue.get('body') or '') or issue_number
+    except ValidationError:
+        return issue_number
+
+
 def handle_issue(client,repo,issue_number,retry=False,dry_run=False):
     positive_int(issue_number,'Issue number')
     issue=client.request('GET',endpoint(repo,f'/issues/{issue_number}'))
@@ -64,7 +80,7 @@ def handle_issue(client,repo,issue_number,retry=False,dry_run=False):
         return {'outcome':'ignored'}
     raw=issue.get('body') or ''
     pending=pending_for_issue(client,repo,issue_number)
-    is_form=bool(re.search(r'^### Form version\s*\n\s*'+re.escape(MARKER)+r'\s*(?:\n|$)',raw,re.M))
+    is_form=bool(re.search(r'^### Big Mac recipe\s*\n\s*'+re.escape(MARKER)+r'\s*(?:\n|$)',raw,re.M))
     if not is_form and not pending:
         return {'outcome':'ignored'}
     existing_pr=pending[0] if pending else None
@@ -77,7 +93,7 @@ def handle_issue(client,repo,issue_number,retry=False,dry_run=False):
                 current=client.request('GET',endpoint(repo,f'/pulls/{existing_pr["number"]}'))
                 set_status(client,repo,current['head']['sha'],'failure','Submission needs correction; see source issue.')
             # Error messages contain field names, not untrusted field values.
-            feedback(client,repo,issue_number,'Please update this review form:\n\n'+message)
+            feedback(client,repo,issue_number,'Please update this review form:\n\n'+safe_text(message))
         return {'outcome':'invalid','error':message}
     try:
         target=original_issue(raw) if is_form else None
@@ -119,8 +135,9 @@ def handle_issue(client,repo,issue_number,retry=False,dry_run=False):
             # An atomic ref update can reserve the branch before its PR is created.
             if not any(p.get('merged_at') and submission_marker(previous.submission_issue) in (p.get('body') or '') for p in prs):
                 raise ValidationError('Another correction is reserving this review branch. Ask a maintainer to finish or close it.')
-        if previous and previous.submission_issue==issue_number and previous.input_maps_url==review.input_maps_url:
-            review=replace(review,restaurant_id=previous.restaurant_id,maps_url=previous.maps_url)
+        grouping = previous if previous and previous.submission_issue == issue_number else accepted
+        if grouping and grouping.input_maps_url == review.input_maps_url:
+            review=replace(review,restaurant_id=grouping.restaurant_id,maps_url=grouping.maps_url)
         rendered=dump_review(review)
         if dry_run:
             return {'outcome':'would-update' if prior else 'would-create','path':f'reviews/{source}.md','content':rendered}
@@ -137,6 +154,10 @@ def handle_issue(client,repo,issue_number,retry=False,dry_run=False):
             prior=client.request('POST',endpoint(repo,'/pulls'),{
                 'head':branch,'base':default,'title':f'Review: Big Mac visit #{source}',
                 'body':submission_marker(issue_number)+f'\n\nReview submitted by @{review.author_login}.\n\nCloses #{issue_number}\n\nThe record is `reviews/{source}.md`. Check the scores, original-recipe confirmation, and whether this location should reuse an existing restaurant ID and canonical Maps URL. Human review is required.'})
+        existing_pr = prior
+        # Validate against the entire accepted dataset, including location reconciliation.
+        from .check import check_pr
+        check_pr(client, repo, prior['number'])
         # Check freshness before success; if the issue changed mid-run, fail closed.
         latest=client.request('GET',endpoint(repo,f'/issues/{issue_number}'))
         if latest.get('body')!=raw or latest['state']!='open':
@@ -153,10 +174,14 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--issue',type=int,required=True)
     parser.add_argument('--retry',action='store_true')
+    parser.add_argument('--resolve',action='store_true',help='Print the numeric original-review lock key without writes.')
     parser.add_argument('--dry-run',action='store_true')
     args=parser.parse_args()
     try:
         client,repo=environment()
+        if args.resolve:
+            print('source=' + str(resolve_source_issue(client, repo, args.issue)))
+            return
         if args.retry and not can_write(client,repo,os.environ.get('GITHUB_ACTOR','')):
             raise ValidationError('Only maintainers can request a retry.')
         result=handle_issue(client,repo,args.issue,args.retry,args.dry_run)

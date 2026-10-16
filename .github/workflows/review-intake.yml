@@ -13,7 +13,35 @@ concurrency:
   group: review-intake-${{ github.event.issue.number || inputs.issue_number }}
   cancel-in-progress: false
 jobs:
+  resolve:
+    if: github.event_name != 'workflow_dispatch' || github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    outputs:
+      source: ${{ steps.source.outputs.source }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Resolve original review for shared serialization
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+        run: python -m scripts.reviews.intake --issue "$ISSUE_NUMBER" --resolve >> "$GITHUB_OUTPUT"
   intake:
+    needs: resolve
+    concurrency:
+      group: review-state-codex/review-${{ needs.resolve.outputs.source }}
+      cancel-in-progress: false
     if: github.event_name != 'workflow_dispatch' || github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     timeout-minutes: 10

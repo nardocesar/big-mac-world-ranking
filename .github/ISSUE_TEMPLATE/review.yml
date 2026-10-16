@@ -11,11 +11,11 @@ body:
 
       For memory reviews, unknown dates, locations, and scores may be omitted. For scored reviews, all five scores and explanations, an exact date, and a Google Maps link are required.
 - type: dropdown
-  id: form_version
+  id: recipe
   attributes:
-    label: Form version
+    label: Big Mac recipe
     options:
-    - big-mac-review-v1
+    - Original standard local recipe
     default: 0
   validations:
     required: true

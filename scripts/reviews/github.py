@@ -97,9 +97,11 @@ def create_commit(client,repo,parent_sha,files,message,extra_parent=None,tree_ba
     return client.request('POST',endpoint(repo,'/git/commits'),{'message':message,'tree':tree['sha'],'parents':parents})['sha']
 
 
-def commit_files(client,repo,branch,files,message,*,base_sha=None,expected_sha=None):
+_NO_EXPECTATION = object()
+
+def commit_files(client,repo,branch,files,message,*,base_sha=None,expected_sha=_NO_EXPECTATION):
     current=get_ref(client,repo,branch)
-    if expected_sha is not None and current!=expected_sha:
+    if expected_sha is not _NO_EXPECTATION and current!=expected_sha:
         raise APIError(409,'The submission branch changed; retry after checking the existing PR.')
     parent=current or base_sha
     if not parent:

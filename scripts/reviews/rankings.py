@@ -36,6 +36,30 @@ def load_dataset(root: Path) -> list[Review]:
     return validate_dataset(reviews)
 
 
+def remote_reviews(client,repo,sha):
+    import base64
+    from .github import endpoint
+    commit=client.request('GET',endpoint(repo,'/git/commits/'+sha))
+    tree=client.request('GET',endpoint(repo,'/git/trees/'+commit['tree']['sha']+'?recursive=1'))
+    if tree.get('truncated'):
+        raise ValidationError('Repository tree is truncated; refusing to publish a partial ranking.')
+    reviews=[]
+    for item in tree['tree']:
+        path=item['path']
+        if not path.startswith('reviews/') or not path.endswith('.md'):
+            continue
+        if not re.fullmatch(r'reviews/[1-9][0-9]*\.md',path) or item.get('mode')!='100644' or item['type']!='blob':
+            raise ValidationError('Accepted reviews must be regular numeric Markdown files directly inside reviews/.')
+        blob=client.request('GET',endpoint(repo,'/git/blobs/'+item['sha']))
+        if blob.get('encoding')!='base64':
+            raise ValidationError('Unexpected review blob encoding.')
+        review=load_review(base64.b64decode(blob['content']).decode())
+        if path!=f'reviews/{review.source_issue}.md':
+            raise ValidationError('Review filename does not match its original source issue.')
+        reviews.append(review)
+    return validate_dataset(reviews)
+
+
 def source_links(reviews: list[Review]) -> str:
     return ', '.join(f'[#{r.source_issue}](reviews/{r.source_issue}.md)' for r in sorted(reviews,key=lambda r:r.source_issue))
 
@@ -56,7 +80,7 @@ def render_contributors(reviews: list[Review]) -> str:
             if total != previous:
                 rank = index
             previous = total
-            latest = max(group,key=lambda r:(r.submission_issue,r.author_login.lower()))
+            latest = max(group,key=lambda r:(r.author_login_issue,r.author_login.lower()))
             scored = sum(r.kind == 'scored' for r in group)
             lines.append(f'| {rank} | [@{latest.author_login}](https://github.com/{latest.author_login}) | {total} | {scored} | {total-scored} | {source_links(group)} |')
         lines.append('')

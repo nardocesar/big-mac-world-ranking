@@ -8,10 +8,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   validate:
-    if: >-
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      startsWith(github.event.pull_request.head.ref, 'codex/review-') &&
-      contains(github.event.pull_request.body, '<!-- big-mac-review issue=')
+    concurrency:
+      group: review-state-${{ github.event.pull_request.head.ref }}
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

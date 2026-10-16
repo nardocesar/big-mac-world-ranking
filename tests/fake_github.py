@@ -50,6 +50,8 @@ class FakeGitHub:
                     if comment['id']==id_: comment.update(data); return deepcopy(comment)
         if route == '/pulls':
             if method=='POST':
+                if any(p['state']=='open' and p['head']['ref']==data['head'] for p in self.prs.values()):
+                    raise APIError(422,'A pull request already exists for this branch')
                 n=1000+len(self.prs); pr={'number':n,'state':'open','merged_at':None,'merged':False,'title':data['title'],'body':data['body'],'head':{'ref':data['head'],'sha':self.refs[data['head']],'repo':{'full_name':'o/r'}},'base':{'ref':data['base']},'html_url':f'https://github.com/o/r/pull/{n}'}
                 self.prs[n]=pr; return deepcopy(pr)
             prs=list(self.prs.values())

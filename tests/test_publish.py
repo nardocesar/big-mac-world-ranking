@@ -48,3 +48,21 @@ class PublishTests(unittest.TestCase):
             return request(method,path,data)
         self.api.request=conflicting
         with self.assertRaisesRegex(APIError,'3 attempts'): publish_rankings(self.api,'o/r')
+    def test_merge_with_new_review_during_publication_is_included_on_retry(self):
+        from scripts.reviews.forms import parse_submission
+        from scripts.reviews.model import dump_review
+        from tests.support import AUTHOR,body
+        request=self.api.request
+        raced=False
+        def merge_before_update(method,path,data=None):
+            nonlocal raced
+            if not raced and method=='PATCH' and path.endswith('/git/refs/heads/main'):
+                raced=True
+                record=parse_submission(body(),AUTHOR,123,None)
+                commit_files(self.api,'o/r','main',{'reviews/123.md':dump_review(record)},'Concurrent accepted review')
+                raise APIError(409,'head changed')
+            return request(method,path,data)
+        self.api.request=merge_before_update
+        self.assertEqual(publish_rankings(self.api,'o/r')['outcome'],'updated')
+        self.assertIn('[@traveler]',get_file(self.api,'o/r','CONTRIBUTORS.md','main'))
+        self.assertIn('3.80',get_file(self.api,'o/r','RESTAURANTS.md','main'))

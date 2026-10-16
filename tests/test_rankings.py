@@ -45,8 +45,8 @@ class RankingTests(unittest.TestCase):
     def test_exact_averages_do_not_tie_just_because_display_rounds(self):
         a = review()
         b = review(124, **{'Google Maps link': 'https://maps.app.goo.gl/Bbb'})
-        group_a = [replace(a, source_issue=i, submission_issue=i) for i in range(1, 101)]
-        group_b = [replace(b, source_issue=i, submission_issue=i) for i in range(101, 201)]
+        group_a = [replace(a, source_issue=i, submission_issue=i, author_login_issue=i) for i in range(1, 101)]
+        group_b = [replace(b, source_issue=i, submission_issue=i, author_login_issue=i) for i in range(101, 201)]
         group_b[-1] = replace(group_b[-1], scores={**b.scores, 'Texture': 4})
         page = render_restaurants(group_a + group_b)
         self.assertEqual(page.count('| 3.80 | 100 |'), 2)
@@ -82,3 +82,8 @@ class RankingTests(unittest.TestCase):
             path.unlink(); generate(root)
             self.assertIn('No accepted', (root/'CONTRIBUTORS.md').read_text())
             self.assertNotEqual(first, (root/'RESTAURANTS.md').read_text())
+    def test_maintainer_correction_does_not_revive_obsolete_login(self):
+        old=review()
+        renamed=review(124,{'login':'new-name','id':42,'type':'User'})
+        corrected=parse_submission(body(**{'Contribution type':'Correction','Original review issue number':'123','Corrected review type':'Scored review'}),{'id':9,'login':'maintainer','type':'User'},125,old)
+        self.assertIn('[@new-name]',render_contributors([corrected,renamed]))
