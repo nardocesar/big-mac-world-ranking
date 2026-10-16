@@ -90,7 +90,7 @@ class FakeGitHub:
         if route=='/git/trees' and method=='POST':
             sha=f'tree-{self.n}'; tree=deepcopy(self.trees[data['base_tree']])
             for item in data['tree']:
-                blob=f'blob-{self.n}-{item["path"]}'; self.blobs[blob]=item['content']; tree[item['path']]=blob
+                blob=f'blob-{self.n}-{item["path"].replace(chr(47),chr(45))}'; self.blobs[blob]=item['content']; tree[item['path']]=blob
             self.trees[sha]=tree; return {'sha':sha}
         if route.startswith('/git/trees/'):
             sha=route.split('/')[-1]

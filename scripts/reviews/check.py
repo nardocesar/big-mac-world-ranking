@@ -2,8 +2,8 @@
 import argparse
 from dataclasses import replace
 from .forms import parse_submission
-from .github import endpoint, environment, get_file, get_ref
-from .intake import can_write, submission_marker
+from .github import APIError, endpoint, environment, get_file, get_ref
+from .intake import can_write, submission_marker, set_status
 from .model import ValidationError, load_review
 from .rankings import load_dataset
 from pathlib import Path
@@ -38,14 +38,33 @@ def check_pr(client,repo,number):
     return actual
 
 
+
+def check_with_status(client,repo,number):
+    pr=client.request('GET',endpoint(repo,f'/pulls/{number}'))
+    sha=pr['head']['sha']
+    set_status(client,repo,sha,'pending','Validating the current review against its source form.')
+    try:
+        result=check_pr(client,repo,number)
+        latest=client.request('GET',endpoint(repo,f'/pulls/{number}'))
+        if latest['head']['sha']!=sha:
+            raise ValidationError('PR changed during validation; retry on the current commit.')
+    except (ValueError,APIError):
+        set_status(client,repo,sha,'failure','Review needs correction; see workflow and source issue.')
+        raise
+    set_status(client,repo,sha,'success','Review matches the latest valid submission.')
+    return result
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--pr',type=int)
+    parser.add_argument('--status',action='store_true')
     parser.add_argument('--root',type=Path,default=Path('.'))
     args=parser.parse_args()
     try:
         if args.pr:
-            client,repo=environment(); check_pr(client,repo,args.pr)
+            client,repo=environment()
+            (check_with_status if args.status else check_pr)(client,repo,args.pr)
         else:
             load_dataset(args.root)
     except (ValueError,OSError) as exc:

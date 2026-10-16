@@ -120,3 +120,17 @@ class IntakeTests(unittest.TestCase):
         self.assertEqual(self.submit()['outcome'],'invalid')
         sha=self.api.refs['codex/review-123']
         self.assertEqual(self.api.statuses[sha]['state'],'failure')
+    def test_validation_status_covers_maintainer_reconciliation_commit(self):
+        from scripts.reviews.check import check_with_status
+        result=self.submit(); branch='codex/review-123'
+        review=load_review(get_file(self.api,'o/r','reviews/123.md',branch))
+        sha=commit_files(self.api,'o/r',branch,{'reviews/123.md':dump_review(replace(review,restaurant_id='b'*64))},'Reconcile restaurant')
+        check_with_status(self.api,'o/r',result['pr'])
+        self.assertEqual(self.api.statuses[sha]['state'],'success')
+    def test_check_detects_tampered_review_and_fails_its_status(self):
+        from scripts.reviews.check import check_with_status
+        result=self.submit(); branch='codex/review-123'
+        review=load_review(get_file(self.api,'o/r','reviews/123.md',branch))
+        sha=commit_files(self.api,'o/r',branch,{'reviews/123.md':dump_review(replace(review,scores={**review.scores,'Texture':1}))},'Unrelated manual change')
+        with self.assertRaises(ValueError): check_with_status(self.api,'o/r',result['pr'])
+        self.assertEqual(self.api.statuses[sha]['state'],'failure')
