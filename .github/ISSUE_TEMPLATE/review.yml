@@ -1,4 +1,3 @@
----
 name: Submit a Big Mac review
 description: Share a visit. We create the review PR for you.
 title: "[Review] McDonald's at [street address], [city], [state], [country]"
@@ -8,8 +7,6 @@ body:
     value: |-
       ## Original Big Mac only
       No extras, no ingredients removed, and no special editions. Submit this form; automation creates a review PR for a maintainer to review. No fork or manual PR is needed.
-
-      For scored reviews, all five scores, an exact date, and a Google Maps link are required. For memory reviews, leave the scores unselected; unknown dates and locations may be omitted. Memory reviews never count toward restaurant averages.
 
       Replace the bracketed parts of the title with the restaurant's street address, city, state, and country.
 - type: dropdown
@@ -21,41 +18,21 @@ body:
     default: 0
   validations:
     required: true
-- type: dropdown
-  id: contribution_type
-  attributes:
-    label: Contribution type
-    options:
-    - New scored review
-    - Review from memory
-    - Correction
-  validations:
-    required: true
-- type: input
-  id: original_issue
-  attributes:
-    label: Original review issue number
-    description: 'Corrections only: the original review issue number, not the PR number.'
-- type: dropdown
-  id: corrected_type
-  attributes:
-    label: Corrected review type
-    description: 'Corrections only: select the type of the replacement review.'
-    options:
-    - Scored review
-    - Review from memory
 - type: input
   id: maps
   attributes:
     label: Google Maps link
-    description: Open the exact restaurant in Google Maps → Share → Copy link. Required
-      for scored reviews. Unknown for a memory review? Leave blank and explain in Overall experience.
+    description: Open the exact restaurant in Google Maps → Share → Copy link.
+  validations:
+    required: true
 - type: input
   id: visit_date
   attributes:
     label: Visit date
-    description: YYYY-MM-DD for scored reviews. An approximate date is welcome for
-      memory reviews.
+    description: YYYY-MM-DD
+    placeholder: '2026-10-13'
+  validations:
+    required: true
 - type: dropdown
   id: order_type
   attributes:
@@ -67,7 +44,7 @@ body:
   validations:
     required: true
 - type: dropdown
-  id: score_0
+  id: flavor_and_balance_score
   attributes:
     label: Flavor and balance score
     description: 1 very poor · 2 below expectations · 3 good/standard · 4 very good
@@ -78,8 +55,10 @@ body:
     - '3'
     - '4'
     - '5'
+  validations:
+    required: true
 - type: dropdown
-  id: score_1
+  id: texture_score
   attributes:
     label: Texture score
     description: 1 very poor · 2 below expectations · 3 good/standard · 4 very good
@@ -90,8 +69,10 @@ body:
     - '3'
     - '4'
     - '5'
+  validations:
+    required: true
 - type: dropdown
-  id: score_2
+  id: temperature_score
   attributes:
     label: Temperature score
     description: 1 very poor · 2 below expectations · 3 good/standard · 4 very good
@@ -102,8 +83,10 @@ body:
     - '3'
     - '4'
     - '5'
+  validations:
+    required: true
 - type: dropdown
-  id: score_3
+  id: perceived_freshness_score
   attributes:
     label: Perceived freshness score
     description: 1 very poor · 2 below expectations · 3 good/standard · 4 very good
@@ -114,8 +97,10 @@ body:
     - '3'
     - '4'
     - '5'
+  validations:
+    required: true
 - type: dropdown
-  id: score_4
+  id: assembly_score
   attributes:
     label: Assembly score
     description: 1 very poor · 2 below expectations · 3 good/standard · 4 very good
@@ -126,13 +111,15 @@ body:
     - '3'
     - '4'
     - '5'
+  validations:
+    required: true
 - type: textarea
   id: experience
   attributes:
     label: Overall experience
     description: 'Optional. What stood out? You can mention price, service, atmosphere,
-      or photos here; they do not affect scores. For memory reviews, state what is
-      uncertain. Avoid adding headings starting with ###.'
+      or photos here; they do not affect scores. Avoid adding headings starting with
+      ###.'
 - type: checkboxes
   id: confirmations
   attributes:

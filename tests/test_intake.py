@@ -5,7 +5,7 @@ from scripts.reviews.github import get_file, commit_files
 from scripts.reviews.model import load_review, dump_review
 from scripts.reviews.check import check_pr
 from tests.fake_github import FakeGitHub
-from tests.support import AUTHOR, body
+from tests.support import AUTHOR, body, correction
 
 class IntakeTests(unittest.TestCase):
     def setUp(self): self.api=FakeGitHub()
@@ -52,7 +52,7 @@ class IntakeTests(unittest.TestCase):
         self.assertEqual(self.api.prs[result['pr']]['state'],'closed')
     def test_correction_replaces_review_without_stealing_author(self):
         result=self.submit(); self.api.merge(result['pr'])
-        raw=body(**{'Contribution type':'Correction','Original review issue number':'123','Corrected review type':'Scored review','Texture score':'5'})
+        raw=correction(**{'Texture score':'5'})
         self.api.issues[125]=self.api.issue(125,raw,{'id':9,'login':'maintainer','type':'User'})
         result=self.submit(125)
         self.assertEqual(result['outcome'],'ready')
@@ -61,7 +61,7 @@ class IntakeTests(unittest.TestCase):
         check_pr(self.api,'o/r',result['pr'])
     def test_unauthorized_and_conflicting_corrections_rejected(self):
         result=self.submit(); self.api.merge(result['pr'])
-        raw=body(**{'Contribution type':'Correction','Original review issue number':'123','Corrected review type':'Scored review'})
+        raw=correction()
         self.api.issues[125]=self.api.issue(125,raw,{'id':8,'login':'stranger','type':'User'})
         self.assertEqual(self.submit(125)['outcome'],'invalid')
         self.api.issues[125]['user']=AUTHOR.copy(); self.submit(125)
@@ -85,7 +85,7 @@ class IntakeTests(unittest.TestCase):
     def test_noncollaborator_correction_gets_actionable_error(self):
         from scripts.reviews.github import APIError
         result=self.submit(); self.api.merge(result['pr'])
-        self.api.issues[125]=self.api.issue(125,body(**{'Contribution type':'Correction','Original review issue number':'123','Corrected review type':'Scored review'}),{'id':8,'login':'stranger','type':'User'})
+        self.api.issues[125]=self.api.issue(125,correction(),{'id':8,'login':'stranger','type':'User'})
         request=self.api.request
         def missing_permission(method,path,data=None):
             if '/collaborators/stranger/' in path: raise APIError(404,'not collaborator')
@@ -164,7 +164,7 @@ class IntakeTests(unittest.TestCase):
         canonical=replace(record,restaurant_id='c'*64,maps_url='https://maps.app.goo.gl/Canonical')
         commit_files(self.api,'o/r',branch,{'reviews/123.md':dump_review(canonical)},'Reconcile')
         self.api.merge(result['pr']); del self.api.refs[branch]
-        self.api.issues[125]=self.api.issue(125,body(**{'Contribution type':'Correction','Original review issue number':'123','Corrected review type':'Scored review','Texture score':'5'}))
+        self.api.issues[125]=self.api.issue(125,correction(**{'Texture score':'5'}))
         self.assertEqual(self.submit(125)['outcome'],'ready')
         corrected=load_review(get_file(self.api,'o/r','reviews/123.md',branch))
         self.assertEqual((corrected.restaurant_id,corrected.maps_url),('c'*64,'https://maps.app.goo.gl/Canonical'))
@@ -189,15 +189,15 @@ class IntakeTests(unittest.TestCase):
     def test_lock_resolution_uses_existing_pr_when_correction_target_is_invalid(self):
         from scripts.reviews.intake import resolve_source_issue
         result=self.submit(); self.api.merge(result['pr'])
-        self.api.issues[125]=self.api.issue(125,body(**{'Contribution type':'Correction','Original review issue number':'123','Corrected review type':'Scored review'}))
+        self.api.issues[125]=self.api.issue(125,correction())
         self.submit(125)
-        self.api.issues[125]['body']=body(**{'Contribution type':'Correction','Original review issue number':'wrong','Corrected review type':'Scored review'})
+        self.api.issues[125]['body']=correction('wrong')
         self.assertEqual(resolve_source_issue(self.api,'o/r',125),123)
     def test_competing_correction_cannot_take_over_prepared_branch(self):
         from scripts.reviews.github import APIError
         result=self.submit(); self.api.merge(result['pr']); del self.api.refs['codex/review-123']
         for n in (125,126):
-            self.api.issues[n]=self.api.issue(n,body(**{'Contribution type':'Correction','Original review issue number':'123','Corrected review type':'Scored review','Texture score':'5' if n==126 else '1'}))
+            self.api.issues[n]=self.api.issue(n,correction(**{'Texture score':'5' if n==126 else '1'}))
         request=self.api.request
         raced=False
         def interleave(method,path,data=None):
@@ -234,11 +234,16 @@ class IntakeTests(unittest.TestCase):
         check_with_status(self.api,'o/r',pr)
         status=self.api.statuses[self.api.refs['codex/migrate']]
         self.assertEqual(status['state'],'success'); self.assertIn('Maintenance',status['description'])
-    def test_maintenance_pr_rejected_for_nonwriter_fork_or_invalid_dataset(self):
+    def test_maintenance_pr_accepts_newer_schema_it_cannot_parse(self):
+        from scripts.reviews.check import check_with_status
+        self.accepted_record()
+        pr=self.maintenance_pr({'login':'maintainer','type':'User'},{'reviews/123.md':'---\n{"schema_version": 99}\n---\n'})
+        check_with_status(self.api,'o/r',pr)
+        self.assertEqual(self.api.statuses[self.api.refs['codex/migrate']]['state'],'success')
+    def test_maintenance_pr_rejected_for_nonwriter_or_fork(self):
         from scripts.reviews.check import check_with_status
         record=self.accepted_record()
         cases=[({'login':'traveler','type':'User'},dump_review(record),False),
-               ({'login':'maintainer','type':'User'},'invalid',False),
                ({'login':'maintainer','type':'User'},dump_review(record),True)]
         for user,text,fork in cases:
             with self.subTest(user=user['login'],fork=fork):

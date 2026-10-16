@@ -102,7 +102,7 @@ def handle_issue(client,repo,issue_number,retry=False,dry_run=False):
         accepted=load_review(accepted_text) if accepted_text else None
         if accepted and (not target or accepted.submission_issue==issue_number):
             if not dry_run:
-                feedback(client,repo,issue_number,'This review has been accepted. Later issue edits do not change the record. To update it, submit the review form as a Correction referencing original issue #'+str(source)+'.')
+                feedback(client,repo,issue_number,f'This review has been accepted. Later issue edits do not change the record. To update it, submit the Correct a review form (https://github.com/{repo}/issues/new?template=correction.yml) with original issue #'+str(source)+'.')
             return {'outcome':'accepted'}
         if existing_pr and existing_pr['head']['ref']!='codex/review-'+str(source):
             raise ValidationError('Do not change the original review target after a PR has been created. Ask a maintainer to close the old submission first.')

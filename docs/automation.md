@@ -1,13 +1,13 @@
 # Review automation: maintainer guide
 
-Contributors use the **Submit a review** Issue Form. They never need to clone, fork, edit Markdown, or create a PR. The bot opens a review-only PR; a maintainer decides whether to merge. Accepted `reviews/<original-issue-number>.md` files are the source for both public rankings.
+Contributors use the **Submit a review** Issue Form (`review.yml`); accepted reviews are fixed through the separate **Correct a review** form (`correction.yml`). GitHub Issue Forms have no conditional fields, so the two forms keep each one free of irrelevant inputs. They never need to clone, fork, edit Markdown, or create a PR. The bot opens a review-only PR; a maintainer decides whether to merge. Accepted `reviews/<original-issue-number>.md` files are the source for both public rankings.
 
 ## Activate after merging this feature
 
 1. Keep Issues and GitHub Actions enabled.
 2. In **Settings → Actions → General → Workflow permissions**, enable **Allow GitHub Actions to create and approve pull requests**. The workflows only create PRs; they do not approve or merge them. Explicit per-job permissions are declared in the workflows, so the default token permission can remain read-only.
 3. Check default-branch rules. The ranking job needs to commit `CONTRIBUTORS.md` and `RESTAURANTS.md` directly using `GITHUB_TOKEN`. If repository rules reject that commit, publication fails visibly. The job publishes the named validity status for its own generated-only commit before updating the branch. An additional rule requiring every change to arrive via PR, extra required checks, signed commits, or restricted pushes still needs a compatible repository policy; these scripts do not change or bypass branch protections or add credentials.
-4. Require the named **`review/latest-submission`** status on PRs targeting `main`. Review validation runs for all PRs: ordinary code/documentation PRs receive a successful “not applicable” status when they do not change review records. Generated review PRs must match the latest valid form and the complete accepted dataset. Maintenance PRs that change `reviews/` without coming from the form (for example, schema migrations) pass only when opened from a branch of this repository by someone with write access and the complete review dataset at the PR head is valid; fork PRs and non-maintainers fail. No bypass is needed for these migrations. This avoids pretending that a destination-branch rule can selectively protect only `codex/review-*` source branches. Do not merge a generated review PR without this successful current status.
+4. Require the named **`review/latest-submission`** status on PRs targeting `main`. Review validation runs for all PRs: ordinary code/documentation PRs receive a successful “not applicable” status when they do not change review records. Generated review PRs must match the latest valid form and the complete accepted dataset. Maintenance PRs that change `reviews/` without coming from the form (for example, schema migrations) pass only when opened from a branch of this repository by someone with write access; fork PRs and non-maintainers fail. The trusted validator cannot parse records in a newer schema version, so dataset validity for these PRs comes from the read-only **Tests** workflow, which runs the PR's own code: check it is green before merging. No bypass is needed for these migrations. This avoids pretending that a destination-branch rule can selectively protect only `codex/review-*` source branches. Do not merge a generated review PR without this successful current status.
 5. If GitHub asks **Approve workflows to run** on a bot-created PR, a maintainer must approve those runs. Intake validates and sets its own status without depending on another bot-triggered workflow.
 6. After deployment, use a real Big Mac review for the first live test. Confirm form feedback, one generated Markdown file, human approval, merge, and the subsequent ranking commit. Local tests are not proof that repository permissions are configured.
 
@@ -31,7 +31,7 @@ Ranking-only commits do not trigger ranking publication again. Events from `GITH
 ## Reviewing a generated PR
 
 - Confirm that it changes exactly one numeric file in `reviews/` and credits the issue creator, not the bot.
-- Check the original-recipe confirmation, date, Maps listing, and scores. A memory review with scores filled in is rejected so scores are never silently dropped. All five scores must be whole numbers from 1 to 5. The final score is calculated, not supplied by the contributor.
+- Check the original-recipe confirmation, date, Maps listing, and scores. All five scores must be whole numbers from 1 to 5. The final score is calculated, not supplied by the contributor.
 - Check duplicates: one reviewer, one visit, one record. Different people may independently review the same visit/location, and repeat visits are allowed.
 - Compare the location against existing records. Reconcile alternate Maps links before merging, as explained below.
 - Check that the latest source issue remains valid and open and that `review/latest-submission` is successful for the current PR commit. Do not merge around a failing/missing status.
@@ -63,7 +63,7 @@ Before acceptance, contributors can edit their issue. Valid edits update the sam
 
 Invalid edits set the current review status to failure and update the same feedback comment. A maintainer must wait for the corrected form to pass before merging. Review status checks are not a substitute for human judgment about whether a restaurant or experience is genuine.
 
-After acceptance, issue edits do not modify the record. A **Correction** form references the original review issue, contains the complete replacement review, and chooses scored or memory type. Only the original reviewer (by stable numeric account ID) or a maintainer with write access may submit one. The correction keeps original authorship and filename. It does not count as another review or contribution.
+After acceptance, issue edits do not modify the record. The separate **Correct a review** form (`correction.yml`) references the original review issue and contains the complete replacement review. Only the original reviewer (by stable numeric account ID) or a maintainer with write access may submit one. The correction keeps original authorship and filename. It does not count as another review or contribution.
 
 Only one correction for an original review may be pending at a time. Intake uses a stable branch per original review plus non-force ref updates; conflicting submissions fail with instructions rather than overwrite one another. To replace a rejected correction with a different submission, first delete the abandoned review branch using GitHub's normal branch controls; the next correction can reserve it afresh. Do not delete a branch with an open PR or pending intake run. Reusing the existing submission via manual retry is simpler.
 
@@ -92,7 +92,7 @@ python -m scripts.reviews.rankings
 python -m scripts.reviews.rankings --check
 ```
 
-Contributors are ranked by accepted review count, including memory reviews with separate totals. Restaurants use only scored reviews, equal criterion/review weights, exact averages, and two-decimal display. Equal totals or exact averages share a position (`1, 1, 3`). Corrections and deleted records are handled by rebuilding from the current files.
+Contributors are ranked by accepted review count. Restaurants use equal criterion/review weights, exact averages, and two-decimal display. Equal totals or exact averages share a position (`1, 1, 3`). Corrections and deleted records are handled by rebuilding from the current files.
 
 Structured metadata is authoritative; the readable body must match the renderer. To change a record manually, use a reviewed correction rather than editing generated ranking tables. Schema migrations go through a maintainer PR that re-renders affected records; never edit generated ranking tables. Tests and fixtures contain synthetic reviews outside `reviews/`; do not submit them as public contributions.
 

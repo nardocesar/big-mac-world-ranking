@@ -1,0 +1,142 @@
+name: Correct a Big Mac review
+description: Fix an accepted review. We create the correction PR for you.
+title: "[Correction] McDonald's at [street address], [city], [state], [country]"
+body:
+- type: markdown
+  attributes:
+    value: |-
+      ## Correct an accepted review
+      Only the original reviewer or a maintainer can correct a review. Fill in the complete updated review: it replaces the accepted one and does not count as a new visit. A maintainer still reviews and merges the change.
+
+      Replace the bracketed parts of the title with the restaurant's street address, city, state, and country.
+- type: dropdown
+  id: recipe
+  attributes:
+    label: Big Mac recipe
+    options:
+    - Original standard local recipe
+    default: 0
+  validations:
+    required: true
+- type: input
+  id: original_issue
+  attributes:
+    label: Original review issue number
+    description: The issue number of the accepted review you are correcting (not the PR number).
+    placeholder: '6'
+  validations:
+    required: true
+- type: input
+  id: maps
+  attributes:
+    label: Google Maps link
+    description: Open the exact restaurant in Google Maps → Share → Copy link.
+  validations:
+    required: true
+- type: input
+  id: visit_date
+  attributes:
+    label: Visit date
+    description: YYYY-MM-DD
+    placeholder: '2026-10-13'
+  validations:
+    required: true
+- type: dropdown
+  id: order_type
+  attributes:
+    label: Order type
+    options:
+    - Dine-in
+    - Takeout
+    - Delivery
+  validations:
+    required: true
+- type: dropdown
+  id: flavor_and_balance_score
+  attributes:
+    label: Flavor and balance score
+    description: 1 very poor · 2 below expectations · 3 good/standard · 4 very good
+      · 5 exceptional
+    options:
+    - '1'
+    - '2'
+    - '3'
+    - '4'
+    - '5'
+  validations:
+    required: true
+- type: dropdown
+  id: texture_score
+  attributes:
+    label: Texture score
+    description: 1 very poor · 2 below expectations · 3 good/standard · 4 very good
+      · 5 exceptional
+    options:
+    - '1'
+    - '2'
+    - '3'
+    - '4'
+    - '5'
+  validations:
+    required: true
+- type: dropdown
+  id: temperature_score
+  attributes:
+    label: Temperature score
+    description: 1 very poor · 2 below expectations · 3 good/standard · 4 very good
+      · 5 exceptional
+    options:
+    - '1'
+    - '2'
+    - '3'
+    - '4'
+    - '5'
+  validations:
+    required: true
+- type: dropdown
+  id: perceived_freshness_score
+  attributes:
+    label: Perceived freshness score
+    description: 1 very poor · 2 below expectations · 3 good/standard · 4 very good
+      · 5 exceptional
+    options:
+    - '1'
+    - '2'
+    - '3'
+    - '4'
+    - '5'
+  validations:
+    required: true
+- type: dropdown
+  id: assembly_score
+  attributes:
+    label: Assembly score
+    description: 1 very poor · 2 below expectations · 3 good/standard · 4 very good
+      · 5 exceptional
+    options:
+    - '1'
+    - '2'
+    - '3'
+    - '4'
+    - '5'
+  validations:
+    required: true
+- type: textarea
+  id: experience
+  attributes:
+    label: Overall experience
+    description: 'Optional. What stood out? You can mention price, service, atmosphere,
+      or photos here; they do not affect scores. Avoid adding headings starting with
+      ###.'
+- type: checkboxes
+  id: confirmations
+  attributes:
+    label: Confirmations
+    options:
+    - label: I personally ate this Big Mac.
+      required: true
+    - label: 'It was the original standard local recipe: no extras, no ingredients
+        removed, and no special edition.'
+      required: true
+    - label: I have permission to share any photos included.
+      required: true

@@ -12,7 +12,7 @@ class PublishTests(unittest.TestCase):
         self.assertEqual(result['outcome'],'updated')
         self.assertNotEqual(self.api.refs['main'],before)
         self.assertIn('No accepted',get_file(self.api,'o/r','CONTRIBUTORS.md','main'))
-        self.assertIn('No scored',get_file(self.api,'o/r','RESTAURANTS.md','main'))
+        self.assertIn('No restaurant reviews yet',get_file(self.api,'o/r','RESTAURANTS.md','main'))
         before=self.api.refs['main']; writes=len(self.api.mutations)
         self.assertEqual(publish_rankings(self.api,'o/r')['outcome'],'unchanged')
         self.assertEqual(before,self.api.refs['main'])
