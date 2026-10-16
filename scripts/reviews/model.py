@@ -177,3 +177,28 @@ def load_review(text: str) -> Review:
     if dump_review(review) != text:
         raise ValidationError('Review body must match its canonical metadata. Re-render after editing metadata.')
     return review
+
+
+def rerender(path):
+    """Regenerate the readable body after a deliberate metadata-only edit."""
+    text = path.read_text()
+    if not text.startswith('---\n'):
+        raise ValidationError('Review must start with JSON-compatible front matter.')
+    try:
+        metadata, _ = text[4:].split('\n---\n',1)
+        review = Review(**json.loads(metadata)).validate()
+    except (ValueError,TypeError) as exc:
+        raise ValidationError(f'Invalid review metadata: {exc}') from exc
+    path.write_text(dump_review(review))
+
+
+if __name__ == '__main__':
+    import argparse
+    from pathlib import Path
+    parser = argparse.ArgumentParser(description='Re-render a review after editing its metadata.')
+    parser.add_argument('--render',type=Path,required=True)
+    args = parser.parse_args()
+    try:
+        rerender(args.render)
+    except (ValueError,OSError) as exc:
+        parser.exit(1,f'{exc}\n')
