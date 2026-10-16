@@ -4,7 +4,7 @@ Every accepted review counts once, including reviews from memory. Corrections re
 
 | Rank | Contributor | Total reviews | Scored | From memory | Reviews |
 | --- | --- | --- | --- | --- | --- |
-| 1 | [@nardocesar](https://github.com/nardocesar) | 1 | 0 | 1 | [#6](reviews/6.md) |
+| 1 | [@nardocesar](https://github.com/nardocesar) | 1 | 1 | 0 | [#6](reviews/6.md) |
 
 ---
 Generated from accepted files in `reviews/`. Do not edit this page manually.
