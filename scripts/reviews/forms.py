@@ -4,11 +4,11 @@ from datetime import date
 import hashlib
 import json
 import re
-from .model import CRITERIA, CONFIRMATIONS, Review, ValidationError, normalize_maps_url, restaurant_key, positive_int
+from .model import CRITERIA, SCHEMA_VERSION, CONFIRMATIONS, Review, ValidationError, normalize_maps_url, restaurant_key, positive_int
 
 MARKER = 'Original standard local recipe'
 BASE_FIELDS = ('Big Mac recipe', 'Contribution type', 'Original review issue number', 'Corrected review type', 'Google Maps link', 'Visit date', 'Order type')
-FIELDS = BASE_FIELDS + tuple(x for criterion in CRITERIA for x in (f'{criterion} score', f'{criterion} explanation')) + ('Overall experience', 'Optional context', 'Confirmations')
+FIELDS = BASE_FIELDS + tuple(f'{criterion} score' for criterion in CRITERIA) + ('Overall experience', 'Confirmations')
 
 
 def sections(body: str) -> dict[str, str]:
@@ -69,20 +69,24 @@ def parse_submission(body: str, author: dict, issue_number: int, existing: Revie
         if kind == 'scored':
             raise ValidationError('Visit date must use YYYY-MM-DD for a scored review.') from None
         visit_date = None
-    scores, explanations = {}, {}
+    # GitHub renders an unselected optional dropdown as "None".
+    raw_scores = {c: fields.get(f'{c} score', '') for c in CRITERIA}
+    filled = {c: v for c, v in raw_scores.items() if v not in {'', 'None'}}
+    scores = {}
     if kind == 'scored':
         for criterion in CRITERIA:
-            score = fields.get(f'{criterion} score', '')
+            score = raw_scores[criterion]
             if not re.fullmatch('[1-5]', score):
                 raise ValidationError(f'{criterion} score must be a whole number from 1 to 5.')
             scores[criterion] = int(score)
-            explanations[criterion] = fields.get(f'{criterion} explanation', '')
+    elif filled:
+        raise ValidationError('You selected Review from memory but filled in scores. Memory reviews never count toward restaurant averages: select New scored review (or Scored review for a correction) to rank this visit, or clear the scores.')
     digest = hashlib.sha256(json.dumps([body, author['id'], author['login'], issue_number], ensure_ascii=True).encode()).hexdigest()
-    review = Review(1, target if correction else issue_number, issue_number,
+    review = Review(SCHEMA_VERSION, target if correction else issue_number, issue_number,
                     existing.author_id if correction else author['id'],
                     existing.author_login if correction and author['id'] != existing.author_id else author['login'],
                     existing.author_login_issue if correction and author['id'] != existing.author_id else issue_number,
                     kind, restaurant_key(maps) if maps else None, maps, maps, visit_date,
-                    raw_date if visit_date is None else '', fields.get('Order type', ''), scores, explanations,
-                    fields.get('Overall experience', ''), fields.get('Optional context', ''), digest, True)
+                    raw_date if visit_date is None else '', fields.get('Order type', ''), scores,
+                    fields.get('Overall experience', ''), digest, True)
     return review.validate()

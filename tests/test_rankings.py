@@ -5,7 +5,7 @@ import unittest
 from scripts.reviews.forms import parse_submission
 from scripts.reviews.model import ValidationError, dump_review
 from scripts.reviews.rankings import load_dataset, render_contributors, render_restaurants, generate
-from tests.support import AUTHOR, body
+from tests.support import AUTHOR, NO_SCORES, body
 
 
 def review(issue=123, author=AUTHOR, **fields):
@@ -17,7 +17,7 @@ class RankingTests(unittest.TestCase):
         self.assertIn('No scored restaurant reviews yet', render_restaurants([]))
 
     def test_memory_counts_for_contributors_only_and_bot_not_credited(self):
-        reviews = [review(), review(124, **{'Contribution type': 'Review from memory'})]
+        reviews = [review(), review(124, **{'Contribution type': 'Review from memory', **NO_SCORES})]
         page = render_contributors(reviews)
         self.assertIn('| 1 | [@traveler](https://github.com/traveler) | 2 | 1 | 1 |', page)
         restaurants = render_restaurants(reviews)
@@ -71,7 +71,7 @@ class RankingTests(unittest.TestCase):
             generate(root)
             first = (root/'RESTAURANTS.md').read_text()
             self.assertFalse(generate(root))
-            path.write_text(dump_review(replace(review(),submission_issue=130,kind='memory',scores={},explanations={})))
+            path.write_text(dump_review(replace(review(),submission_issue=130,kind='memory',scores={})))
             generate(root)
             self.assertIn('No scored', (root/'RESTAURANTS.md').read_text())
             self.assertIn('| 1 | 0 | 1 |', (root/'CONTRIBUTORS.md').read_text())

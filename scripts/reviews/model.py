@@ -16,6 +16,9 @@ CONFIRMATIONS = (
     'I have permission to share any photos included.',
 )
 
+SCHEMA_VERSION = 2
+
+
 class ValidationError(ValueError):
     """An actionable submission or dataset error."""
 
@@ -60,7 +63,7 @@ def restaurant_key(url: str) -> str:
 
 def safe_text(value: str) -> str:
     """Render user text as inert text, never HTML or active Markdown links."""
-    value = html.escape(value, quote=True)
+    value = html.escape(value, quote=False)
     return re.sub(r'([\\`*{}\[\]()#+!|_~@])', r'\\\1', value)
 
 
@@ -86,9 +89,7 @@ class Review:
     date_note: str
     order_type: str
     scores: dict[str, int]
-    explanations: dict[str, str]
     experience: str
-    context: str
     submission_digest: str
     confirmed: bool
 
@@ -97,7 +98,7 @@ class Review:
         return Fraction(sum(self.scores.values()), 5) if self.kind == 'scored' else None
 
     def validate(self):
-        if type(self.schema_version) is not int or self.schema_version != 1:
+        if type(self.schema_version) is not int or self.schema_version != SCHEMA_VERSION:
             raise ValidationError('Unsupported review schema version.')
         for key in ('source_issue', 'submission_issue', 'author_id', 'author_login_issue'):
             positive_int(getattr(self, key), key)
@@ -129,20 +130,16 @@ class Review:
                 raise ValidationError('Visit date must be a real, nonfuture YYYY-MM-DD date.') from None
         elif self.kind == 'scored':
             raise ValidationError('Visit date is required for scored reviews.')
-        if not isinstance(self.scores, dict) or not isinstance(self.explanations, dict):
-            raise ValidationError('Scores and explanations must be objects.')
+        if not isinstance(self.scores, dict):
+            raise ValidationError('Scores must be an object.')
         if self.kind == 'scored':
             if set(self.scores) != set(CRITERIA) or any(type(v) is not int or not 1 <= v <= 5 for v in self.scores.values()):
                 raise ValidationError('All five scores must be whole numbers from 1 to 5.')
-            if set(self.explanations) != set(CRITERIA):
-                raise ValidationError('Each score requires an explanation.')
-        elif self.scores or self.explanations:
+        elif self.scores:
             raise ValidationError('Memory reviews must not store scores.')
-        for value in (self.date_note, self.experience, self.context, *self.explanations.values()):
+        for value in (self.date_note, self.experience):
             if not isinstance(value, str) or len(value) > 12000 or '\x00' in value:
                 raise ValidationError('Review text must be text of at most 12,000 characters per field.')
-        if not self.experience.strip() or any(not s.strip() for s in self.explanations.values()):
-            raise ValidationError('Overall experience and score explanations cannot be blank.')
         return self
 
 
@@ -154,10 +151,10 @@ def _body(review: Review) -> str:
     if review.final_score is not None:
         lines += [f'**Final score: {float(review.final_score):.2f}/5**', '']
         for criterion in CRITERIA:
-            lines += [f'## {criterion}: {review.scores[criterion]}/5', '', safe_text(review.explanations[criterion]), '']
-    lines += ['## Overall experience', '', safe_text(review.experience), '']
-    if review.context:
-        lines += ['## Optional context', '', safe_text(review.context), '']
+            lines.append(f'- {criterion}: {review.scores[criterion]}/5')
+        lines.append('')
+    if review.experience.strip():
+        lines += ['## Overall experience', '', safe_text(review.experience), '']
     return '\n'.join(lines).rstrip() + '\n'
 
 

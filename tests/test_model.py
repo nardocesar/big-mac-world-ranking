@@ -43,3 +43,11 @@ class ModelTests(unittest.TestCase):
             path.write_text('---\n'+json.dumps(data)+'\n---\n'+rest)
             rerender(path)
             self.assertEqual(load_review(path.read_text()).restaurant_id,'a'*64)
+    def test_apostrophes_and_quotes_render_as_plain_text(self):
+        rendered = dump_review(parse_submission(body(**{'Overall experience': 'That\'s "great"'}), AUTHOR, 123, None))
+        self.assertIn('That\'s "great"', rendered)
+        self.assertNotIn('&#', rendered.replace('&\\#', '&#'))
+
+    def test_blank_experience_omits_section(self):
+        rendered = dump_review(parse_submission(body(**{'Overall experience': '_No response_'}), AUTHOR, 123, None))
+        self.assertNotIn('## Overall experience', rendered)

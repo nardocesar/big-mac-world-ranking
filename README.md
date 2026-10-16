@@ -45,7 +45,7 @@ Dine-in, takeout, and delivery are all welcome. Label the order type: transport 
 
 ## 📋 The scoring menu
 
-Give each criterion a **whole-number score from 1 to 5**, with a brief explanation of what you observed.
+Give each criterion a **whole-number score from 1 to 5**.
 
 | | Criterion | What to look for |
 | --- | --- | --- |
@@ -63,9 +63,9 @@ Give each criterion a **whole-number score from 1 to 5**, with a brief explanati
 | **2 / 5** | Below expectations | Noticeable problems that hurt the experience. |
 | **3 / 5** | Good / standard | Meets expectations for a Big Mac. |
 | **4 / 5** | Very good | Stands out positively on this criterion. |
-| **5 / 5** | Exceptional | A standout experience supported by a concrete explanation. |
+| **5 / 5** | Exceptional | A standout experience on this criterion. |
 
-**Price, service, and atmosphere stay off the scorecard.** You can describe them separately as context.
+**Price, service, and atmosphere stay off the scorecard.** You can mention them in your optional overall comment.
 
 ## 🧮 From one bite to a world ranking
 
@@ -99,16 +99,15 @@ Every published average must show the **number of reviews, number of unique cont
 
 ### What goes on the receipt?
 
-| Required for a scored review | Optional extras for your story |
+| Required for a scored review | Optional, in the overall comment |
 | --- | --- |
-| Google Maps link to the exact restaurant | Photo |
+| Google Maps link to the exact restaurant | What stood out about the burger |
 | Visit date in `YYYY-MM-DD` format | Price and local currency |
-| Dine-in, takeout, or delivery | Whether the price is for the burger or a meal |
-| Confirmation of the original, unmodified recipe | Approximate time between receiving the order and eating |
-| Five scores, each with an explanation | Comments on service and atmosphere |
-| An overall comment (the final score is calculated for you) | |
+| Dine-in, takeout, or delivery | Service and atmosphere |
+| Confirmation of the original, unmodified recipe | Photo |
+| Five scores (the final score is calculated for you) | |
 
-Your GitHub account on the original issue identifies you as the reviewer, even though the bot opens the PR. The Google Maps listing identifies the restaurant. The form does not ask you to repeat your username, country, city, or restaurant address.
+Your GitHub account on the original issue identifies you as the reviewer, even though the bot opens the PR. The Google Maps listing identifies the restaurant. The issue title suggests `McDonald's at [street address], [city], [state], [country]` so reviews are easy to browse; the Google Maps link remains the official location.
 
 Use your own photos or photos you have permission to share, and avoid exposing other people.
 
@@ -128,7 +127,7 @@ Maintainers check restaurant grouping before acceptance: two different Google Ma
 - **Your burger, your review.** Review only what you personally ate; do not submit scores on someone else's behalf.
 - **One person, one visit, one review.** Do not duplicate reviews or split the same burger into multiple contributions.
 - **Come back for seconds.** Repeat visits to the same restaurant are welcome; record each visit's date.
-- **Explain the score.** Base it on your observed experience. Disagreement is not a reason to reject a review.
+- **Score what you observed.** Base every score on your own experience. Disagreement is not a reason to reject a review.
 - **Keep it respectful.** Focus comments on the experience.
 - **Correct the record.** To fix an accepted review, use the same form, select **Correction**, give the original review issue number, and select the replacement review type. Include the full updated review and explain the change in your comments. Only the original reviewer or a maintainer can submit a correction; it still requires review and merge. Editing an already accepted issue does not change the record.
 

@@ -31,7 +31,7 @@ Ranking-only commits do not trigger ranking publication again. Events from `GITH
 ## Reviewing a generated PR
 
 - Confirm that it changes exactly one numeric file in `reviews/` and credits the issue creator, not the bot.
-- Check the original-recipe confirmation, date, Maps listing, scores, and explanations. All five scores must be whole numbers from 1 to 5. The final score is calculated, not supplied by the contributor.
+- Check the original-recipe confirmation, date, Maps listing, and scores. A memory review with scores filled in is rejected so scores are never silently dropped. All five scores must be whole numbers from 1 to 5. The final score is calculated, not supplied by the contributor.
 - Check duplicates: one reviewer, one visit, one record. Different people may independently review the same visit/location, and repeat visits are allowed.
 - Compare the location against existing records. Reconcile alternate Maps links before merging, as explained below.
 - Check that the latest source issue remains valid and open and that `review/latest-submission` is successful for the current PR commit. Do not merge around a failing/missing status.
