@@ -66,7 +66,8 @@ When contributing, add a line here using the format `- City, country — visit d
 ### Required information
 
 - Your GitHub username, as the reviewer's public identifier.
-- Country, city, and restaurant identification (an address or map link that distinguishes the location).
+- Country, city, and restaurant name or address.
+- A Google Maps link to the specific McDonald's restaurant you visited. Open the restaurant's place listing in Google Maps and use **Share → Copy link**; link to the individual location, rather than a general search or city map.
 - Visit date in `YYYY-MM-DD` format.
 - Order type: dine-in, takeout, or delivery.
 - Confirmation of the standard local recipe, or a description of customizations or a special edition.
@@ -87,7 +88,7 @@ Photos are optional. Use your own photos or photos you have permission to share,
 
 ### Reviews from memory
 
-Older stories are welcome, even without an exact date or enough detail to assign scores. Mark the contribution as a **review from memory**, share only what you remember, and make uncertainties explicit.
+Older stories are welcome, even without an exact date or enough detail to assign scores. Mark the contribution as a **review from memory**, share only what you remember, and make uncertainties explicit. If you cannot identify the exact restaurant, leave the Google Maps link blank and explain this uncertainty instead of guessing.
 
 These accounts remain on record but **do not count toward ranking averages**. Do not invent dates or scores to complete the form.
 
