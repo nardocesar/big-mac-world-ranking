@@ -1,7 +1,7 @@
 import unittest
 from scripts.reviews.forms import parse_submission
 from scripts.reviews.model import ValidationError
-from tests.support import AUTHOR, NO_SCORES, body
+from tests.support import AUTHOR, NO_SCORES, TITLE, body
 
 class FormTests(unittest.TestCase):
     def test_scored_review_uses_real_author_and_computes_score(self):
@@ -56,3 +56,17 @@ class FormTests(unittest.TestCase):
         for heading in ('Texture explanation', 'Optional context'):
             with self.subTest(heading=heading), self.assertRaises(ValidationError):
                 parse_submission(body() + f'\n\n### {heading}\n\nText', AUTHOR, 123, None)
+
+    def test_restaurant_label_comes_from_issue_title(self):
+        review = parse_submission(body(), AUTHOR, 123, None, TITLE)
+        self.assertEqual(review.restaurant_label, "McDonald's at 1 Main St, Springfield, IL, USA")
+
+    def test_placeholder_or_blank_title_has_no_label(self):
+        for title in ('', '[Review] ', "[Review] McDonald's at [street address], [city], [state], [country]"):
+            with self.subTest(title=title):
+                self.assertIsNone(parse_submission(body(), AUTHOR, 123, None, title).restaurant_label)
+
+    def test_title_is_part_of_submission_digest(self):
+        a = parse_submission(body(), AUTHOR, 123, None, TITLE)
+        b = parse_submission(body(), AUTHOR, 123, None, TITLE + ' (2)')
+        self.assertNotEqual(a.submission_digest, b.submission_digest)

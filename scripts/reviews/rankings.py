@@ -4,7 +4,7 @@ from fractions import Fraction
 from pathlib import Path
 import argparse
 import re
-from .model import Review, ValidationError, load_review, maps_link
+from .model import Review, ValidationError, load_review, maps_link, safe_text
 
 FOOTER = '\n---\nGenerated from accepted files in `reviews/`. Do not edit this page manually.\nRebuild with `python -m scripts.reviews.rankings`. [How to contribute](README.md#-how-to-contribute).\n'
 
@@ -106,7 +106,8 @@ def render_restaurants(reviews: list[Review]) -> str:
                 rank = index
             previous = average
             dates = [r.visit_date for r in group]
-            label = f'Location {key[:12]}'
+            titled = [r for r in group if r.restaurant_label]
+            label = safe_text(max(titled, key=lambda r: r.submission_issue).restaurant_label) if titled else f'Location {key[:12]}'
             lines.append(f'| {rank} | [{label}](<{maps_link(group[0].maps_url)}>) | {float(average):.2f} | {len(group)} | {len({r.author_id for r in group})} | {min(dates)} | {max(dates)} | {source_links(group)} |')
         lines.append('')
     return '\n'.join(lines) + FOOTER

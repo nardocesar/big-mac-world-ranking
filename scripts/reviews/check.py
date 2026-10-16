@@ -32,7 +32,7 @@ def check_pr(client,repo,number):
     accepted=load_review(accepted_text) if accepted_text else None
     if accepted and issue['user']['id']!=accepted.author_id and not can_write(client,repo,issue['user']['login']):
         raise ValidationError('Correction is not authorized by the original reviewer or a maintainer.')
-    expected=parse_submission(issue['body'],issue['user'],issue['number'],accepted)
+    expected=parse_submission(issue['body'],issue['user'],issue['number'],accepted,issue.get('title') or '')
     expected=replace(expected,restaurant_id=actual.restaurant_id,maps_url=actual.maps_url)
     if actual!=expected:
         raise ValidationError('The review does not match the latest valid issue. Retry intake before merging.')
@@ -45,21 +45,33 @@ def check_pr(client,repo,number):
 
 
 
+def check_maintenance(client,repo,pr):
+    """Accept non-submission review changes (e.g. schema migrations) only from maintainers."""
+    if pr['head']['repo']['full_name']!=repo:
+        raise ValidationError('Review records can only be changed by form submissions or same-repository maintainer PRs.')
+    if not can_write(client,repo,pr['user']['login']):
+        raise ValidationError('Only maintainers can change review records outside the review form.')
+    # Reads the head commit as data; never executes PR code.
+    return remote_reviews(client,repo,pr['head']['sha'])
+
+
 def check_with_status(client,repo,number):
     pr=client.request('GET',endpoint(repo,f'/pulls/{number}'))
     sha=pr['head']['sha']
     set_status(client,repo,sha,'pending','Validating the current review against its source form.')
     try:
         files=client.list(endpoint(repo,f'/pulls/{number}/files'))
-        is_review = any(f['filename'].startswith('reviews/') and f['filename'].endswith('.md') for f in files)
-        is_review = is_review or '<!-- big-mac-review issue=' in (pr.get('body') or '')
-        result=check_pr(client,repo,number) if is_review else None
+        is_submission = '<!-- big-mac-review issue=' in (pr.get('body') or '')
+        is_maintenance = not is_submission and any(f['filename'].startswith('reviews/') for f in files)
+        result=check_pr(client,repo,number) if is_submission else None
+        if is_maintenance:
+            check_maintenance(client,repo,pr)
         if result is not None:
             current_issue = client.request('GET', endpoint(repo, f'/issues/{result.submission_issue}'))
             default = client.request('GET', endpoint(repo))['default_branch']
             accepted_text = get_file(client, repo, f'reviews/{result.source_issue}.md', get_ref(client, repo, default))
             original = load_review(accepted_text) if accepted_text else None
-            latest_submission = parse_submission(current_issue['body'], current_issue['user'], current_issue['number'], original)
+            latest_submission = parse_submission(current_issue['body'], current_issue['user'], current_issue['number'], original, current_issue.get('title') or '')
             if current_issue['state'] != 'open' or latest_submission.submission_digest != result.submission_digest:
                 raise ValidationError('Source issue changed during validation; retry intake.')
         latest=client.request('GET',endpoint(repo,f'/pulls/{number}'))
@@ -68,7 +80,12 @@ def check_with_status(client,repo,number):
     except (ValueError,APIError):
         set_status(client,repo,sha,'failure','Review needs correction; see workflow and source issue.')
         raise
-    description = 'Review matches the latest valid submission.' if result is not None else 'No review records changed; review validation is not applicable.'
+    if result is not None:
+        description = 'Review matches the latest valid submission.'
+    elif is_maintenance:
+        description = 'Maintenance change by a maintainer; full review dataset validated.'
+    else:
+        description = 'No review records changed; review validation is not applicable.'
     set_status(client,repo,sha,'success',description)
     return result
 

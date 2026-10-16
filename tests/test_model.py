@@ -51,3 +51,9 @@ class ModelTests(unittest.TestCase):
     def test_blank_experience_omits_section(self):
         rendered = dump_review(parse_submission(body(**{'Overall experience': '_No response_'}), AUTHOR, 123, None))
         self.assertNotIn('## Overall experience', rendered)
+    def test_restaurant_label_renders_inert(self):
+        review = parse_submission(body(), AUTHOR, 123, None, '[Review] [Evil](javascript:x) <b>Main St</b> | @x')
+        rendered = dump_review(review)
+        self.assertEqual(load_review(rendered), review)
+        self.assertNotIn('[Evil](javascript:', rendered)
+        self.assertNotIn('<b>', rendered)

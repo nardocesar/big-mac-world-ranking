@@ -7,7 +7,7 @@ Contributors use the **Submit a review** Issue Form. They never need to clone, f
 1. Keep Issues and GitHub Actions enabled.
 2. In **Settings → Actions → General → Workflow permissions**, enable **Allow GitHub Actions to create and approve pull requests**. The workflows only create PRs; they do not approve or merge them. Explicit per-job permissions are declared in the workflows, so the default token permission can remain read-only.
 3. Check default-branch rules. The ranking job needs to commit `CONTRIBUTORS.md` and `RESTAURANTS.md` directly using `GITHUB_TOKEN`. If repository rules reject that commit, publication fails visibly. The job publishes the named validity status for its own generated-only commit before updating the branch. An additional rule requiring every change to arrive via PR, extra required checks, signed commits, or restricted pushes still needs a compatible repository policy; these scripts do not change or bypass branch protections or add credentials.
-4. Require the named **`review/latest-submission`** status on PRs targeting `main`. Review validation runs for all PRs: ordinary code/documentation PRs receive a successful “not applicable” status when they do not change review records. Generated review PRs must match the latest valid form and the complete accepted dataset. This avoids pretending that a destination-branch rule can selectively protect only `codex/review-*` source branches. Do not merge a generated review PR without this successful current status.
+4. Require the named **`review/latest-submission`** status on PRs targeting `main`. Review validation runs for all PRs: ordinary code/documentation PRs receive a successful “not applicable” status when they do not change review records. Generated review PRs must match the latest valid form and the complete accepted dataset. Maintenance PRs that change `reviews/` without coming from the form (for example, schema migrations) pass only when opened from a branch of this repository by someone with write access and the complete review dataset at the PR head is valid; fork PRs and non-maintainers fail. No bypass is needed for these migrations. This avoids pretending that a destination-branch rule can selectively protect only `codex/review-*` source branches. Do not merge a generated review PR without this successful current status.
 5. If GitHub asks **Approve workflows to run** on a bot-created PR, a maintainer must approve those runs. Intake validates and sets its own status without depending on another bot-triggered workflow.
 6. After deployment, use a real Big Mac review for the first live test. Confirm form feedback, one generated Markdown file, human approval, merge, and the subsequent ranking commit. Local tests are not proof that repository permissions are configured.
 
@@ -53,7 +53,7 @@ If two submissions describe the same restaurant with different links, a maintain
 
 4. Wait for review validation. It permits these two internal grouping changes while rejecting altered scores, authorship, or narrative not matching the latest form.
 
-Records with the same restaurant ID must use the same canonical Maps URL. The neutral table label `Location <ID prefix>` links to Google Maps; the system does not invent restaurant addresses or geographic details.
+Records with the same restaurant ID must use the same canonical Maps URL. The restaurant name shown in `RESTAURANTS.md` comes from the submission issue title (without the `[Review]` prefix), using the most recent submission for that location. To fix a name before merge, edit the issue title: intake updates the pending PR. If the title still contains the `[street address]` placeholder or is empty, the table falls back to the neutral label `Location <ID prefix>`. The system does not look up or invent addresses.
 
 If intake edits the same location later, it preserves the maintainer's grouping. If the contributor changes the submitted location link, intake derives a new ID and the maintainer checks grouping again.
 
@@ -94,7 +94,7 @@ python -m scripts.reviews.rankings --check
 
 Contributors are ranked by accepted review count, including memory reviews with separate totals. Restaurants use only scored reviews, equal criterion/review weights, exact averages, and two-decimal display. Equal totals or exact averages share a position (`1, 1, 3`). Corrections and deleted records are handled by rebuilding from the current files.
 
-Structured metadata is authoritative; the readable body must match the renderer. To change a record manually, use a reviewed correction rather than editing generated ranking tables. Tests and fixtures contain synthetic reviews outside `reviews/`; do not submit them as public contributions.
+Structured metadata is authoritative; the readable body must match the renderer. To change a record manually, use a reviewed correction rather than editing generated ranking tables. Schema migrations go through a maintainer PR that re-renders affected records; never edit generated ranking tables. Tests and fixtures contain synthetic reviews outside `reviews/`; do not submit them as public contributions.
 
 ## GitHub references
 

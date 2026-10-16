@@ -211,3 +211,41 @@ class IntakeTests(unittest.TestCase):
         self.assertEqual(self.submit(125)['outcome'],'invalid')
         record=load_review(get_file(self.api,'o/r','reviews/123.md','codex/review-123'))
         self.assertEqual((record.submission_issue,record.scores['Texture']),(126,5))
+    def test_title_edit_updates_label_and_stale_title_fails_check(self):
+        result=self.submit()
+        record=load_review(get_file(self.api,'o/r','reviews/123.md','codex/review-123'))
+        self.assertEqual(record.restaurant_label,"McDonald's at 1 Main St, Springfield, IL, USA")
+        self.api.issues[123]['title']="[Review] McDonald's at 2 Main St"
+        with self.assertRaises(ValueError): check_pr(self.api,'o/r',result['pr'])
+        self.submit()
+        record=load_review(get_file(self.api,'o/r','reviews/123.md','codex/review-123'))
+        self.assertEqual(record.restaurant_label,"McDonald's at 2 Main St")
+        check_pr(self.api,'o/r',result['pr'])
+    def maintenance_pr(self,user,files):
+        commit_files(self.api,'o/r','codex/migrate',files,'Migrate',base_sha=self.api.refs['main'])
+        return self.api.request('POST','/repos/o/r/pulls',{'head':'codex/migrate','base':'main','title':'Migrate','body':'Schema migration','user':user})['number']
+    def accepted_record(self):
+        result=self.submit(); self.api.merge(result['pr'])
+        return load_review(get_file(self.api,'o/r','reviews/123.md','main'))
+    def test_maintainer_maintenance_pr_with_valid_dataset_gets_success(self):
+        from scripts.reviews.check import check_with_status
+        record=self.accepted_record()
+        pr=self.maintenance_pr({'login':'maintainer','type':'User'},{'reviews/123.md':dump_review(replace(record,restaurant_label='Fixed label')),'README.md':'Docs'})
+        check_with_status(self.api,'o/r',pr)
+        status=self.api.statuses[self.api.refs['codex/migrate']]
+        self.assertEqual(status['state'],'success'); self.assertIn('Maintenance',status['description'])
+    def test_maintenance_pr_rejected_for_nonwriter_fork_or_invalid_dataset(self):
+        from scripts.reviews.check import check_with_status
+        record=self.accepted_record()
+        cases=[({'login':'traveler','type':'User'},dump_review(record),False),
+               ({'login':'maintainer','type':'User'},'invalid',False),
+               ({'login':'maintainer','type':'User'},dump_review(record),True)]
+        for user,text,fork in cases:
+            with self.subTest(user=user['login'],fork=fork):
+                self.api.refs.pop('codex/migrate',None)
+                for pr in self.api.prs.values():
+                    if pr['head']['ref']=='codex/migrate': pr['state']='closed'
+                pr=self.maintenance_pr(user,{'reviews/123.md':text,'README.md':'Docs '+str(fork)})
+                if fork: self.api.prs[pr]['head']['repo']['full_name']='attacker/r'
+                with self.assertRaises(ValueError): check_with_status(self.api,'o/r',pr)
+                self.assertEqual(self.api.statuses[self.api.refs['codex/migrate']]['state'],'failure')
