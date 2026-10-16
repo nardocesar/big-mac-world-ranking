@@ -66,3 +66,13 @@ class PublishTests(unittest.TestCase):
         self.assertEqual(publish_rankings(self.api,'o/r')['outcome'],'updated')
         self.assertIn('[@traveler]',get_file(self.api,'o/r','CONTRIBUTORS.md','main'))
         self.assertIn('3.80',get_file(self.api,'o/r','RESTAURANTS.md','main'))
+    def test_generated_commit_satisfies_named_required_status_before_ref_update(self):
+        request=self.api.request
+        def enforce_required_status(method,path,data=None):
+            if method=='PATCH' and path.endswith('/git/refs/heads/main'):
+                status=self.api.statuses.get(data['sha'],{})
+                if status.get('context')!='review/latest-submission' or status.get('state')!='success':
+                    raise APIError(403,'Required review status is missing')
+            return request(method,path,data)
+        self.api.request=enforce_required_status
+        self.assertEqual(publish_rankings(self.api,'o/r')['outcome'],'updated')

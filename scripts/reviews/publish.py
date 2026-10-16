@@ -1,7 +1,7 @@
 """Publish both ranking pages from a fresh accepted-data snapshot."""
 import argparse
 from .github import APIError, create_commit, endpoint, environment, get_file, get_ref
-from .intake import feedback
+from .intake import feedback, set_status
 from .rankings import outputs, remote_reviews
 
 
@@ -24,6 +24,8 @@ def publish_rankings(client,repo,max_attempts=3):
             acknowledge(client,repo,reviews)
             return {'outcome':'unchanged'}
         sha=create_commit(client,repo,snapshot,changed,'docs: update community Big Mac rankings')
+        # This trusted commit changes only derived pages, and its complete source dataset passed validation.
+        set_status(client,repo,sha,'success','Only generated rankings changed; accepted review data validated.')
         try:
             from urllib.parse import quote
             client.request('PATCH',endpoint(repo,'/git/refs/heads/'+quote(default,safe='')),{'sha':sha,'force':False})

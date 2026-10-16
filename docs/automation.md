@@ -6,7 +6,7 @@ Contributors use the **Submit a review** Issue Form. They never need to clone, f
 
 1. Keep Issues and GitHub Actions enabled.
 2. In **Settings → Actions → General → Workflow permissions**, enable **Allow GitHub Actions to create and approve pull requests**. The workflows only create PRs; they do not approve or merge them. Explicit per-job permissions are declared in the workflows, so the default token permission can remain read-only.
-3. Check default-branch rules. The ranking job needs to commit `CONTRIBUTORS.md` and `RESTAURANTS.md` directly using `GITHUB_TOKEN`. If repository rules reject that commit, publication fails visibly. Choose a repository policy that permits this intended automation; these scripts do not change or bypass branch protections or add credentials.
+3. Check default-branch rules. The ranking job needs to commit `CONTRIBUTORS.md` and `RESTAURANTS.md` directly using `GITHUB_TOKEN`. If repository rules reject that commit, publication fails visibly. The job publishes the named validity status for its own generated-only commit before updating the branch. An additional rule requiring every change to arrive via PR, extra required checks, signed commits, or restricted pushes still needs a compatible repository policy; these scripts do not change or bypass branch protections or add credentials.
 4. Require the named **`review/latest-submission`** status on PRs targeting `main`. Review validation runs for all PRs: ordinary code/documentation PRs receive a successful “not applicable” status when they do not change review records. Generated review PRs must match the latest valid form and the complete accepted dataset. This avoids pretending that a destination-branch rule can selectively protect only `codex/review-*` source branches. Do not merge a generated review PR without this successful current status.
 5. If GitHub asks **Approve workflows to run** on a bot-created PR, a maintainer must approve those runs. Intake validates and sets its own status without depending on another bot-triggered workflow.
 6. After deployment, use a real Big Mac review for the first live test. Confirm form feedback, one generated Markdown file, human approval, merge, and the subsequent ranking commit. Local tests are not proof that repository permissions are configured.
@@ -20,7 +20,7 @@ The repository was observed with PR creation by Actions disabled when this featu
 | Review intake | Review issues opened, edited, reopened, or closed; manual retry | A review branch/file, its PR, one feedback comment, and the named validity status |
 | Review validation | Any PR opened, synchronized, reopened, or edited | Only its validity status; review code and files are read as data |
 | Tests | PRs and pushes to `main` | No API writes |
-| Update rankings | Pushes to `main` affecting reviews or generator code; manual rebuild | Both ranking pages in one commit and accepted-submission feedback |
+| Update rankings | Pushes to `main` affecting reviews or generator code; manual rebuild | Both ranking pages in one commit, its validity status, and accepted-submission feedback |
 
 Intake status writes and PR validation share a concurrency lock per original review. The current issue is checked again before a validator publishes success, so an older check cannot overwrite a newer processed failure. GitHub concurrency keeps at most one pending run per group; if several different corrections are submitted together, a superseded pending run may need a manual retry. Unrelated reviews have different locks.
 
