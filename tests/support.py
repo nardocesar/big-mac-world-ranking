@@ -1,13 +1,9 @@
 from copy import deepcopy
-from scripts.reviews.model import CRITERIA
 
 TITLE = "[Review] McDonald's at 1 Main St, Springfield, IL, USA"
 AUTHOR = {'login': 'traveler', 'id': 42, 'type': 'User'}
 FIELDS = {
     'Big Mac recipe': 'Original standard local recipe',
-    'Contribution type': 'New scored review',
-    'Original review issue number': '_No response_',
-    'Corrected review type': '_No response_',
     'Google Maps link': 'https://www.google.com/maps/place/McDonalds/@1,2,17z',
     'Visit date': '2025-01-02',
     'Order type': 'Dine-in',
@@ -23,7 +19,10 @@ FIELDS = {
 def body(**overrides):
     fields = deepcopy(FIELDS)
     fields.update(overrides)
+    fields = {key: value for key, value in fields.items() if value is not None}
     return '\n\n'.join(f'### {key}\n\n{value}' for key, value in fields.items())
 
-# Unselected optional dropdowns, as GitHub renders them for memory reviews.
-NO_SCORES = {f'{criterion} score': 'None' for criterion in CRITERIA}
+
+def correction(original='123', **overrides):
+    """Body of the separate Correct a review form."""
+    return body(**{'Original review issue number': original, **overrides})

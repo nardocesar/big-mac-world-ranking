@@ -29,7 +29,7 @@ This project started with a travel habit: visit McDonald's, order a Big Mac, and
 | 🤝 Community contributions | [Fill out a review form](https://github.com/nardocesar/big-mac-world-ranking/issues/new?template=review.yml); automation creates the PR |
 | 🍔 Review collection | Accepted reviews are individual Markdown files in [`reviews/`](reviews/) |
 | 🏆 Restaurant ranking | [Best restaurants](RESTAURANTS.md), rebuilt automatically after accepted changes |
-| 🍟 Contributor ranking | [Top contributors](CONTRIBUTORS.md), with scored and memory counts |
+| 🍟 Contributor ranking | [Top contributors](CONTRIBUTORS.md), by number of accepted reviews |
 
 You only need a GitHub account to contribute. Submit a form, wait for maintainer review, and your accepted visit becomes part of the rankings. There is no separate website or database. Maintainers: see the [automation setup guide](docs/automation.md) before activating the workflow.
 
@@ -37,7 +37,7 @@ You only need a GitHub account to contribute. Submit a form, wait for maintainer
 
 > **The standard local recipe. No extras. No ingredients removed. No special editions.**
 >
-> This applies to every contribution, including reviews from memory. Differences between standard local recipes are part of the experience.
+> This applies to every contribution, including corrections. Differences between standard local recipes are part of the experience.
 
 Each review covers **one Big Mac eaten at one restaurant on one date**. One visit to a single location does not represent an entire country.
 
@@ -79,9 +79,9 @@ Final score  =  ─────────────────────�
 
 For example, **4 + 3 + 4 + 3 + 5 = 19 → 3.80 / 5**.
 
-The [restaurant ranking](RESTAURANTS.md) uses the average final score of accepted scored reviews for each location. Every review has equal weight. The calculation uses unrounded values, displays two decimal places, and treats identical exact averages as ties. City and country rankings are not generated.
+The [restaurant ranking](RESTAURANTS.md) uses the average final score of accepted reviews for each location. Every review has equal weight. The calculation uses unrounded values, displays two decimal places, and treats identical exact averages as ties. City and country rankings are not generated.
 
-Every published average must show the **number of reviews, number of unique contributors, and date range of visits**. A single visit is an initial sample, not a verdict on a whole country. Reviews from memory do not enter these averages.
+Every published average must show the **number of reviews, number of unique contributors, and date range of visits**. A single visit is an initial sample, not a verdict on a whole country.
 
 ## 🤝 How to contribute
 
@@ -99,7 +99,7 @@ Every published average must show the **number of reviews, number of unique cont
 
 ### What goes on the receipt?
 
-| Required for a scored review | Optional, in the overall comment |
+| Required | Optional, in the overall comment |
 | --- | --- |
 | Google Maps link to the exact restaurant | What stood out about the burger |
 | Visit date in `YYYY-MM-DD` format | Price and local currency |
@@ -116,7 +116,7 @@ Use your own photos or photos you have permission to share, and avoid exposing o
 | Ranking | How it works |
 | --- | --- |
 | [🍔 Best McDonald's restaurants](RESTAURANTS.md) | Average Big Mac score per location, with review count, distinct contributors, visit dates, and links to reviews |
-| [🍟 Top contributors](CONTRIBUTORS.md) | Total accepted reviews per person, with scored reviews and memory reviews shown separately |
+| [🍟 Top contributors](CONTRIBUTORS.md) | Total accepted reviews per person |
 
 Each accepted visit has a permanent Markdown record in [`reviews/`](reviews/). Corrections replace that record; they do not add another visit or contributor credit. Rankings are rebuilt from those files after merges, rather than from later edits to issue descriptions.
 
@@ -129,15 +129,7 @@ Maintainers check restaurant grouping before acceptance: two different Google Ma
 - **Come back for seconds.** Repeat visits to the same restaurant are welcome; record each visit's date.
 - **Score what you observed.** Base every score on your own experience. Disagreement is not a reason to reject a review.
 - **Keep it respectful.** Focus comments on the experience.
-- **Correct the record.** To fix an accepted review, use the same form, select **Correction**, give the original review issue number, and select the replacement review type. Include the full updated review and explain the change in your comments. Only the original reviewer or a maintainer can submit a correction; it still requires review and merge. Editing an already accepted issue does not change the record.
-
-### 🕰️ A Big Mac you remember
-
-Older stories are welcome, even without an exact date or enough detail to assign scores. Select **Review from memory** in the form, share only what you remember, and make uncertainties explicit. The original-recipe rule still applies.
-
-If you cannot identify the exact restaurant, leave the Google Maps link blank and explain the uncertainty. Leave scores blank if you cannot recall enough detail. Do not invent dates or scores to complete the form.
-
-These accounts count toward your contributor total, in a separate **From memory** column, but **never count toward restaurant ranking averages**.
+- **Correct the record.** To fix an accepted review, use the [Correct a review](https://github.com/nardocesar/big-mac-world-ranking/issues/new?template=correction.yml) form, give the original review issue number, and fill in the full updated review. Only the original reviewer or a maintainer can submit a correction; it still requires review and merge. Editing an already accepted issue does not change the record.
 
 ---
 

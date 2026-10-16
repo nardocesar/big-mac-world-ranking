@@ -8,7 +8,7 @@ from .rankings import outputs, remote_reviews
 def acknowledge(client,repo,reviews):
     for review in reviews:
         for issue in sorted({review.source_issue,review.submission_issue}):
-            feedback(client,repo,issue,f'This review has been accepted: https://github.com/{repo}/blob/HEAD/reviews/{review.source_issue}.md\n\nTo change the accepted record, submit the review form as a Correction referencing original issue #{review.source_issue}. Later edits to this issue do not change the ranking.')
+            feedback(client,repo,issue,f'This review has been accepted: https://github.com/{repo}/blob/HEAD/reviews/{review.source_issue}.md\n\nTo change the accepted record, submit the Correct a review form (https://github.com/{repo}/issues/new?template=correction.yml) with original issue #{review.source_issue}. Later edits to this issue do not change the ranking.')
 
 
 def publish_rankings(client,repo,max_attempts=3):

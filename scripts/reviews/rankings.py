@@ -66,14 +66,14 @@ def source_links(reviews: list[Review]) -> str:
 
 def render_contributors(reviews: list[Review]) -> str:
     validate_dataset(reviews)
-    lines = ['# 🍟 Top contributors', '', 'Every accepted review counts once, including reviews from memory. Corrections replace a review and never add a contribution. Equal totals share a position.', '']
+    lines = ['# 🍟 Top contributors', '', 'Every accepted review counts once. Corrections replace a review and never add a contribution. Equal totals share a position.', '']
     groups = defaultdict(list)
     for review in reviews:
         groups[review.author_id].append(review)
     if not groups:
         lines += ['No accepted reviews yet. [Be the first to contribute](README.md#-how-to-contribute).', '']
     else:
-        lines += ['| Rank | Contributor | Total reviews | Scored | From memory | Reviews |', '| --- | --- | --- | --- | --- | --- |']
+        lines += ['| Rank | Contributor | Reviews | Source reviews |', '| --- | --- | --- | --- |']
         previous, rank = None, 0
         for index, (_, group) in enumerate(sorted(groups.items(),key=lambda item:(-len(item[1]),item[0])),1):
             total = len(group)
@@ -81,21 +81,19 @@ def render_contributors(reviews: list[Review]) -> str:
                 rank = index
             previous = total
             latest = max(group,key=lambda r:(r.author_login_issue,r.author_login.lower()))
-            scored = sum(r.kind == 'scored' for r in group)
-            lines.append(f'| {rank} | [@{latest.author_login}](https://github.com/{latest.author_login}) | {total} | {scored} | {total-scored} | {source_links(group)} |')
+            lines.append(f'| {rank} | [@{latest.author_login}](https://github.com/{latest.author_login}) | {total} | {source_links(group)} |')
         lines.append('')
     return '\n'.join(lines) + FOOTER
 
 
 def render_restaurants(reviews: list[Review]) -> str:
     validate_dataset(reviews)
-    lines = ['# 🍔 Best McDonald’s restaurants', '', 'Ranked by the exact average of accepted scored Big Mac reviews. Every review and each of the five criteria have equal weight. Scores display two decimal places; only equal exact averages share a rank.', '', 'A single review is an initial sample, not a verdict. Memory reviews are excluded. Dine-in, takeout, and delivery details remain in the linked reviews. Restaurants are grouped by a maintainer-reviewed location ID; different Maps links may need reconciliation.', '']
+    lines = ['# 🍔 Best McDonald’s restaurants', '', 'Ranked by the exact average of accepted Big Mac reviews. Every review and each of the five criteria have equal weight. Scores display two decimal places; only equal exact averages share a rank.', '', 'A single review is an initial sample, not a verdict. Dine-in, takeout, and delivery details remain in the linked reviews. Restaurants are grouped by a maintainer-reviewed location ID; different Maps links may need reconciliation.', '']
     groups = defaultdict(list)
     for review in reviews:
-        if review.kind == 'scored':
-            groups[review.restaurant_id].append(review)
+        groups[review.restaurant_id].append(review)
     if not groups:
-        lines += ['No scored restaurant reviews yet. [Add the first stop](README.md#-how-to-contribute).', '']
+        lines += ['No restaurant reviews yet. [Add the first stop](README.md#-how-to-contribute).', '']
     else:
         averages = {key: sum((r.final_score for r in group),Fraction()) / len(group) for key,group in groups.items()}
         lines += ['| Rank | Restaurant · Google Maps | Average / 5 | Reviews | Contributors | First visit | Last visit | Source reviews |', '| --- | --- | --- | --- | --- | --- | --- | --- |']

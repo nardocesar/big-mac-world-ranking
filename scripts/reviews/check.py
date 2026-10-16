@@ -51,8 +51,8 @@ def check_maintenance(client,repo,pr):
         raise ValidationError('Review records can only be changed by form submissions or same-repository maintainer PRs.')
     if not can_write(client,repo,pr['user']['login']):
         raise ValidationError('Only maintainers can change review records outside the review form.')
-    # Reads the head commit as data; never executes PR code.
-    return remote_reviews(client,repo,pr['head']['sha'])
+    # Dataset validity is checked by the read-only Tests workflow with the PR's own code:
+    # this trusted default-branch validator cannot read records in a newer schema version.
 
 
 def check_with_status(client,repo,number):
@@ -83,7 +83,7 @@ def check_with_status(client,repo,number):
     if result is not None:
         description = 'Review matches the latest valid submission.'
     elif is_maintenance:
-        description = 'Maintenance change by a maintainer; full review dataset validated.'
+        description = 'Maintenance change by a maintainer; the Tests workflow validates the dataset.'
     else:
         description = 'No review records changed; review validation is not applicable.'
     set_status(client,repo,sha,'success',description)

@@ -16,7 +16,7 @@ CONFIRMATIONS = (
     'I have permission to share any photos included.',
 )
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 LABEL_PLACEHOLDER = '[street address]'
 
 
@@ -60,7 +60,7 @@ def normalize_maps_url(url: str) -> str:
 
 def restaurant_label(title: str) -> str | None:
     """Display name from the issue title, e.g. \"McDonald's at 1 Main St, City\"."""
-    label = re.sub(r'\s+', ' ', re.sub(r'^\s*\[review\]', '', title or '', flags=re.I)).strip()[:200].strip()
+    label = re.sub(r'\s+', ' ', re.sub(r'^\s*\[(?:review|correction)\]', '', title or '', flags=re.I)).strip()[:200].strip()
     return label if label and LABEL_PLACEHOLDER not in label else None
 
 
@@ -88,13 +88,11 @@ class Review:
     author_id: int
     author_login: str
     author_login_issue: int
-    kind: str
-    restaurant_id: str | None
-    maps_url: str | None
-    input_maps_url: str | None
+    restaurant_id: str
+    maps_url: str
+    input_maps_url: str
     restaurant_label: str | None
-    visit_date: str | None
-    date_note: str
+    visit_date: str
     order_type: str
     scores: dict[str, int]
     experience: str
@@ -102,8 +100,8 @@ class Review:
     confirmed: bool
 
     @property
-    def final_score(self) -> Fraction | None:
-        return Fraction(sum(self.scores.values()), 5) if self.kind == 'scored' else None
+    def final_score(self) -> Fraction:
+        return Fraction(sum(self.scores.values()), 5)
 
     def validate(self):
         if type(self.schema_version) is not int or self.schema_version != SCHEMA_VERSION:
@@ -116,58 +114,38 @@ class Review:
             raise ValidationError('A correction cannot predate the original issue.')
         if not isinstance(self.author_login, str) or not re.fullmatch(r'[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})', self.author_login):
             raise ValidationError('Reviewer must be a human GitHub account.')
-        if self.kind not in {'scored', 'memory'} or self.order_type not in ORDER_TYPES or self.confirmed is not True:
-            raise ValidationError('Review type, order type, and recipe confirmations are required.')
+        if self.order_type not in ORDER_TYPES or self.confirmed is not True:
+            raise ValidationError('Order type and recipe confirmations are required.')
         if not isinstance(self.submission_digest, str) or not re.fullmatch(r'[a-f0-9]{64}', self.submission_digest):
             raise ValidationError('Submission digest is required.')
-        if self.input_maps_url is not None and normalize_maps_url(self.input_maps_url) != self.input_maps_url:
-            raise ValidationError("Original submitted Maps URL must be normalized.")
+        for url in (self.maps_url, self.input_maps_url):
+            if normalize_maps_url(url) != url:
+                raise ValidationError('Store normalized Google Maps links.')
+        if not isinstance(self.restaurant_id, str) or not re.fullmatch(r'[a-f0-9]{64}', self.restaurant_id):
+            raise ValidationError('Restaurant ID must be a full SHA-256 identifier.')
         if self.restaurant_label is not None and (not isinstance(self.restaurant_label, str) or not self.restaurant_label.strip()
                                                   or len(self.restaurant_label) > 200 or re.search(r'[\x00-\x1f]', self.restaurant_label)):
             raise ValidationError('Restaurant label must be a single line of at most 200 characters.')
-        if self.maps_url is not None:
-            if normalize_maps_url(self.maps_url) != self.maps_url:
-                raise ValidationError('Store the normalized Google Maps link.')
-            if not isinstance(self.restaurant_id, str) or not re.fullmatch(r'[a-f0-9]{64}', self.restaurant_id):
-                raise ValidationError('Restaurant ID must be a full SHA-256 identifier.')
-        elif self.restaurant_id is not None or self.kind == 'scored':
-            raise ValidationError('Scored reviews require a restaurant ID and Google Maps link.')
-        if self.visit_date is not None:
-            try:
-                parsed = date.fromisoformat(self.visit_date)
-                if parsed.isoformat() != self.visit_date or parsed > date.today():
-                    raise ValueError()
-            except (ValueError, TypeError):
-                raise ValidationError('Visit date must be a real, nonfuture YYYY-MM-DD date.') from None
-        elif self.kind == 'scored':
-            raise ValidationError('Visit date is required for scored reviews.')
-        if not isinstance(self.scores, dict):
-            raise ValidationError('Scores must be an object.')
-        if self.kind == 'scored':
-            if set(self.scores) != set(CRITERIA) or any(type(v) is not int or not 1 <= v <= 5 for v in self.scores.values()):
-                raise ValidationError('All five scores must be whole numbers from 1 to 5.')
-        elif self.scores:
-            raise ValidationError('Memory reviews must not store scores.')
-        for value in (self.date_note, self.experience):
-            if not isinstance(value, str) or len(value) > 12000 or '\x00' in value:
-                raise ValidationError('Review text must be text of at most 12,000 characters per field.')
+        try:
+            parsed = date.fromisoformat(self.visit_date)
+            if parsed.isoformat() != self.visit_date or parsed > date.today():
+                raise ValueError()
+        except (ValueError, TypeError):
+            raise ValidationError('Visit date must be a real, nonfuture YYYY-MM-DD date.') from None
+        if not isinstance(self.scores, dict) or set(self.scores) != set(CRITERIA) or any(type(v) is not int or not 1 <= v <= 5 for v in self.scores.values()):
+            raise ValidationError('All five scores must be whole numbers from 1 to 5.')
+        if not isinstance(self.experience, str) or len(self.experience) > 12000 or '\x00' in self.experience:
+            raise ValidationError('Overall experience must be text of at most 12,000 characters.')
         return self
 
 
 def _body(review: Review) -> str:
-    name = safe_text(review.restaurant_label) if review.restaurant_label else None
-    if review.maps_url:
-        place = f'[{name or "Google Maps"}](<{maps_link(review.maps_url)}>)'
-    else:
-        place = name or 'Unknown (from memory)'
+    name = safe_text(review.restaurant_label) if review.restaurant_label else 'Google Maps'
     lines = [f'# Big Mac review #{review.source_issue}', '', f'Reviewer: [@{review.author_login}](https://github.com/{review.author_login})', '',
-             f'Restaurant: {place}', '', f'Visit: {safe_text(review.visit_date or review.date_note or "Unknown")} · {review.order_type}', '',
-             f'Type: {review.kind}', '', 'Original standard local recipe confirmed: no extras, removed ingredients, or special edition.', '']
-    if review.final_score is not None:
-        lines += [f'**Final score: {float(review.final_score):.2f}/5**', '']
-        for criterion in CRITERIA:
-            lines.append(f'- {criterion}: {review.scores[criterion]}/5')
-        lines.append('')
+             f'Restaurant: [{name}](<{maps_link(review.maps_url)}>)', '', f'Visit: {review.visit_date} · {review.order_type}', '',
+             'Original standard local recipe confirmed: no extras, removed ingredients, or special edition.', '',
+             f'**Final score: {float(review.final_score):.2f}/5**', '']
+    lines += [f'- {criterion}: {review.scores[criterion]}/5' for criterion in CRITERIA] + ['']
     if review.experience.strip():
         lines += ['## Overall experience', '', safe_text(review.experience), '']
     return '\n'.join(lines).rstrip() + '\n'

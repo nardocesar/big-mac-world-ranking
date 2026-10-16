@@ -5,7 +5,7 @@ import unittest
 from scripts.reviews.forms import parse_submission
 from scripts.reviews.model import ValidationError, dump_review
 from scripts.reviews.rankings import load_dataset, render_contributors, render_restaurants, generate
-from tests.support import AUTHOR, NO_SCORES, body
+from tests.support import AUTHOR, body, correction
 
 
 def review(issue=123, author=AUTHOR, **fields):
@@ -14,17 +14,16 @@ def review(issue=123, author=AUTHOR, **fields):
 class RankingTests(unittest.TestCase):
     def test_empty_states(self):
         self.assertIn('No accepted reviews yet', render_contributors([]))
-        self.assertIn('No scored restaurant reviews yet', render_restaurants([]))
+        self.assertIn('No restaurant reviews yet', render_restaurants([]))
 
-    def test_memory_counts_for_contributors_only_and_bot_not_credited(self):
-        reviews = [review(), review(124, **{'Contribution type': 'Review from memory', **NO_SCORES})]
+    def test_every_review_counts_for_contributors_and_bot_not_credited(self):
+        reviews = [review(), review(124, **{'Google Maps link': 'https://maps.app.goo.gl/Bbb'})]
         page = render_contributors(reviews)
-        self.assertIn('| 1 | [@traveler](https://github.com/traveler) | 2 | 1 | 1 |', page)
+        self.assertIn('| Rank | Contributor | Reviews | Source reviews |', page)
+        self.assertIn('| 1 | [@traveler](https://github.com/traveler) | 2 | [#123](reviews/123.md), [#124](reviews/124.md) |', page)
+        self.assertNotIn('github-actions', page)
         restaurants = render_restaurants(reviews)
         self.assertIn('| 3.80 | 1 | 1 | 2025-01-02', restaurants)
-        self.assertNotIn('github-actions', page)
-        self.assertIn('reviews/123.md', restaurants)
-        self.assertNotIn('reviews/124.md', restaurants)
 
     def test_competition_ties_and_deterministic_order(self):
         a = review()
@@ -40,7 +39,7 @@ class RankingTests(unittest.TestCase):
         text = render_contributors([renamed,old])
         self.assertIn('[@new-name]', text)
         self.assertNotIn('[@traveler]', text)
-        self.assertIn('| 2 | 2 | 0 |', text)
+        self.assertIn('| 1 | [@new-name](https://github.com/new-name) | 2 |', text)
 
     def test_exact_averages_do_not_tie_just_because_display_rounds(self):
         a = review()
@@ -71,10 +70,10 @@ class RankingTests(unittest.TestCase):
             generate(root)
             first = (root/'RESTAURANTS.md').read_text()
             self.assertFalse(generate(root))
-            path.write_text(dump_review(replace(review(),submission_issue=130,kind='memory',scores={})))
+            path.write_text(dump_review(replace(review(),submission_issue=130,scores={**review().scores,'Texture':5})))
             generate(root)
-            self.assertIn('No scored', (root/'RESTAURANTS.md').read_text())
-            self.assertIn('| 1 | 0 | 1 |', (root/'CONTRIBUTORS.md').read_text())
+            self.assertIn('| 4.20 | 1 |', (root/'RESTAURANTS.md').read_text())
+            self.assertIn('| 1 | [@traveler](https://github.com/traveler) | 1 |', (root/'CONTRIBUTORS.md').read_text())
             before = (root/'CONTRIBUTORS.md').read_bytes()
             path.write_text('invalid')
             with self.assertRaises(ValidationError): generate(root)
@@ -85,7 +84,7 @@ class RankingTests(unittest.TestCase):
     def test_maintainer_correction_does_not_revive_obsolete_login(self):
         old=review()
         renamed=review(124,{'login':'new-name','id':42,'type':'User'})
-        corrected=parse_submission(body(**{'Contribution type':'Correction','Original review issue number':'123','Corrected review type':'Scored review'}),{'id':9,'login':'maintainer','type':'User'},125,old)
+        corrected=parse_submission(correction(),{'id':9,'login':'maintainer','type':'User'},125,old)
         self.assertIn('[@new-name]',render_contributors([corrected,renamed]))
     def test_restaurant_label_uses_latest_titled_review_with_fallback(self):
         a = parse_submission(body(), AUTHOR, 123, None, "[Review] McDonald's at Old Name")
