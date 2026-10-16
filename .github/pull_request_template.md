@@ -9,13 +9,16 @@
 - **Reviewer (@GitHub username):**
 - **Country:**
 - **City:**
-- **Restaurant (address or map link):**
+- **Restaurant name or address:**
+- **Google Maps link to this restaurant:**
 - **Visit date (YYYY-MM-DD):**
 - **Order type (dine-in / takeout / delivery):**
 - **Order (standard local recipe / customized / special edition):**
 - **Customizations or special edition, if applicable:**
 
-<!-- For reviews from memory, provide an approximate date or “I don't remember.” Do not invent information. Customized orders and special editions are excluded from the main averages. -->
+<!-- Open the specific restaurant's place listing in Google Maps, then use Share → Copy link. Do not link to a general search or city map. -->
+
+<!-- For reviews from memory, provide an approximate date or “I don't remember.” If you cannot identify the exact restaurant, leave the Google Maps link blank and explain the uncertainty. Do not invent information. Customized orders and special editions are excluded from the main averages. -->
 
 ## Scores
 
@@ -54,6 +57,7 @@
 - [ ] I personally ate the burger described here.
 - [ ] This contribution does not duplicate my review of the same visit, or it is identified as a correction.
 - [ ] I identified the restaurant, order type, and any customizations.
+- [ ] I included a Google Maps link to the specific restaurant, or explained why I cannot identify it in a review from memory.
 - [ ] I provided all five scores with explanations and the exact date, or marked this as a review from memory with explicit uncertainties.
 - [ ] I added my visit to the README index (or updated the entry for a correction).
 - [ ] If I attached photos, I have permission to share them.
