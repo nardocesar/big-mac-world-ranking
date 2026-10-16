@@ -4,7 +4,7 @@ from datetime import date
 import hashlib
 import json
 import re
-from .model import CRITERIA, SCHEMA_VERSION, CONFIRMATIONS, Review, ValidationError, normalize_maps_url, restaurant_key, positive_int
+from .model import CRITERIA, SCHEMA_VERSION, restaurant_label, CONFIRMATIONS, Review, ValidationError, normalize_maps_url, restaurant_key, positive_int
 
 MARKER = 'Original standard local recipe'
 BASE_FIELDS = ('Big Mac recipe', 'Contribution type', 'Original review issue number', 'Corrected review type', 'Google Maps link', 'Visit date', 'Order type')
@@ -37,7 +37,7 @@ def original_issue(body: str) -> int | None:
     return int(number)
 
 
-def parse_submission(body: str, author: dict, issue_number: int, existing: Review | None = None) -> Review:
+def parse_submission(body: str, author: dict, issue_number: int, existing: Review | None = None, title: str = '') -> Review:
     fields = sections(body)
     positive_int(issue_number, 'Issue number')
     positive_int(author.get('id'), 'Reviewer account ID')
@@ -81,12 +81,12 @@ def parse_submission(body: str, author: dict, issue_number: int, existing: Revie
             scores[criterion] = int(score)
     elif filled:
         raise ValidationError('You selected Review from memory but filled in scores. Memory reviews never count toward restaurant averages: select New scored review (or Scored review for a correction) to rank this visit, or clear the scores.')
-    digest = hashlib.sha256(json.dumps([body, author['id'], author['login'], issue_number], ensure_ascii=True).encode()).hexdigest()
+    digest = hashlib.sha256(json.dumps([body, title, author['id'], author['login'], issue_number], ensure_ascii=True).encode()).hexdigest()
     review = Review(SCHEMA_VERSION, target if correction else issue_number, issue_number,
                     existing.author_id if correction else author['id'],
                     existing.author_login if correction and author['id'] != existing.author_id else author['login'],
                     existing.author_login_issue if correction and author['id'] != existing.author_id else issue_number,
-                    kind, restaurant_key(maps) if maps else None, maps, maps, visit_date,
+                    kind, restaurant_key(maps) if maps else None, maps, maps, restaurant_label(title), visit_date,
                     raw_date if visit_date is None else '', fields.get('Order type', ''), scores,
                     fields.get('Overall experience', ''), digest, True)
     return review.validate()

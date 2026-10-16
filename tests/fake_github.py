@@ -3,7 +3,7 @@ import base64
 from copy import deepcopy
 from urllib.parse import urlsplit, parse_qs, unquote
 from scripts.reviews.github import APIError
-from tests.support import AUTHOR, body
+from tests.support import AUTHOR, TITLE, body
 
 class FakeGitHub:
     def __init__(self):
@@ -22,7 +22,7 @@ class FakeGitHub:
 
     @staticmethod
     def issue(n, raw=None, user=None):
-        return {'number':n,'title':'Review','body':raw if raw is not None else body(),'state':'open','user':deepcopy(user or AUTHOR),'html_url':f'https://github.com/o/r/issues/{n}'}
+        return {'number':n,'title':TITLE,'body':raw if raw is not None else body(),'state':'open','user':deepcopy(user or AUTHOR),'html_url':f'https://github.com/o/r/issues/{n}'}
 
     def list(self,path):
         return self.request('GET',path)
@@ -52,7 +52,7 @@ class FakeGitHub:
             if method=='POST':
                 if any(p['state']=='open' and p['head']['ref']==data['head'] for p in self.prs.values()):
                     raise APIError(422,'A pull request already exists for this branch')
-                n=1000+len(self.prs); pr={'number':n,'state':'open','merged_at':None,'merged':False,'title':data['title'],'body':data['body'],'head':{'ref':data['head'],'sha':self.refs[data['head']],'repo':{'full_name':'o/r'}},'base':{'ref':data['base']},'html_url':f'https://github.com/o/r/pull/{n}'}
+                n=1000+len(self.prs); pr={'number':n,'state':'open','merged_at':None,'merged':False,'title':data['title'],'body':data['body'],'head':{'ref':data['head'],'sha':self.refs[data['head']],'repo':{'full_name':'o/r'}},'base':{'ref':data['base']},'html_url':f'https://github.com/o/r/pull/{n}','user':deepcopy(data.get('user',{'login':'github-actions[bot]','type':'Bot'}))}
                 self.prs[n]=pr; return deepcopy(pr)
             prs=list(self.prs.values())
             if 'head' in query: prs=[p for p in prs if p['head']['ref']==query['head'][0].split(':',1)[1]]

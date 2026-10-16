@@ -6,7 +6,7 @@ A single review is an initial sample, not a verdict. Memory reviews are excluded
 
 | Rank | Restaurant · Google Maps | Average / 5 | Reviews | Contributors | First visit | Last visit | Source reviews |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | [Location c92678586562](<https://maps.app.goo.gl/UQ2JcpuwGkZ9n5Hz9>) | 3.60 | 1 | 1 | 2026-10-13 | 2026-10-13 | [#6](reviews/6.md) |
+| 1 | [McDonald's at Av. Eng. Fábio Roberto Barnabé 3075, Indaiatuba, São Paulo, Brazil](<https://maps.app.goo.gl/UQ2JcpuwGkZ9n5Hz9>) | 3.60 | 1 | 1 | 2026-10-13 | 2026-10-13 | [#6](reviews/6.md) |
 
 ---
 Generated from accepted files in `reviews/`. Do not edit this page manually.

@@ -124,7 +124,7 @@ def handle_issue(client,repo,issue_number,retry=False,dry_run=False):
                 raise ValidationError('Original review issue must identify an accepted review.')
             if issue['user']['id']!=accepted.author_id and not can_write(client,repo,issue['user']['login']):
                 raise ValidationError('Only the original reviewer or a repository maintainer can correct this review.')
-        review=parse_submission(raw,issue['user'],issue_number,accepted if target else None)
+        review=parse_submission(raw,issue['user'],issue_number,accepted if target else None,issue.get('title') or '')
         for pr in prs:
             if pr['state']=='open' and submission_marker(issue_number) not in (pr.get('body') or ''):
                 raise ValidationError('This review already has another pending correction. Resolve that PR before submitting another.')
@@ -160,7 +160,7 @@ def handle_issue(client,repo,issue_number,retry=False,dry_run=False):
         check_pr(client, repo, prior['number'])
         # Check freshness before success; if the issue changed mid-run, fail closed.
         latest=client.request('GET',endpoint(repo,f'/issues/{issue_number}'))
-        if latest.get('body')!=raw or latest['state']!='open':
+        if latest.get('body')!=raw or latest.get('title')!=issue.get('title') or latest['state']!='open':
             existing_pr=prior
             return fail('The form changed during processing. A maintainer can retry the latest version.')
         set_status(client,repo,branch_sha,'success','Review matches the latest valid submission.')

@@ -1,6 +1,7 @@
 from copy import deepcopy
 from scripts.reviews.model import CRITERIA
 
+TITLE = "[Review] McDonald's at 1 Main St, Springfield, IL, USA"
 AUTHOR = {'login': 'traveler', 'id': 42, 'type': 'User'}
 FIELDS = {
     'Big Mac recipe': 'Original standard local recipe',

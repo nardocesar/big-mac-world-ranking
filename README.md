@@ -107,7 +107,7 @@ Every published average must show the **number of reviews, number of unique cont
 | Confirmation of the original, unmodified recipe | Photo |
 | Five scores (the final score is calculated for you) | |
 
-Your GitHub account on the original issue identifies you as the reviewer, even though the bot opens the PR. The Google Maps listing identifies the restaurant. The issue title suggests `McDonald's at [street address], [city], [state], [country]` so reviews are easy to browse; the Google Maps link remains the official location.
+Your GitHub account on the original issue identifies you as the reviewer, even though the bot opens the PR. The Google Maps listing identifies the restaurant. The issue title suggests `McDonald's at [street address], [city], [state], [country]` and that title becomes the restaurant's name in the [restaurant ranking](RESTAURANTS.md); the Google Maps link remains the official location.
 
 Use your own photos or photos you have permission to share, and avoid exposing other people.
 

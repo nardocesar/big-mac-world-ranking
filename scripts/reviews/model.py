@@ -16,7 +16,8 @@ CONFIRMATIONS = (
     'I have permission to share any photos included.',
 )
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
+LABEL_PLACEHOLDER = '[street address]'
 
 
 class ValidationError(ValueError):
@@ -57,6 +58,12 @@ def normalize_maps_url(url: str) -> str:
     return urlunsplit(('https', host, path, urlencode(query), ''))
 
 
+def restaurant_label(title: str) -> str | None:
+    """Display name from the issue title, e.g. \"McDonald's at 1 Main St, City\"."""
+    label = re.sub(r'\s+', ' ', re.sub(r'^\s*\[review\]', '', title or '', flags=re.I)).strip()[:200].strip()
+    return label if label and LABEL_PLACEHOLDER not in label else None
+
+
 def restaurant_key(url: str) -> str:
     return hashlib.sha256(normalize_maps_url(url).encode()).hexdigest()
 
@@ -85,6 +92,7 @@ class Review:
     restaurant_id: str | None
     maps_url: str | None
     input_maps_url: str | None
+    restaurant_label: str | None
     visit_date: str | None
     date_note: str
     order_type: str
@@ -114,6 +122,9 @@ class Review:
             raise ValidationError('Submission digest is required.')
         if self.input_maps_url is not None and normalize_maps_url(self.input_maps_url) != self.input_maps_url:
             raise ValidationError("Original submitted Maps URL must be normalized.")
+        if self.restaurant_label is not None and (not isinstance(self.restaurant_label, str) or not self.restaurant_label.strip()
+                                                  or len(self.restaurant_label) > 200 or re.search(r'[\x00-\x1f]', self.restaurant_label)):
+            raise ValidationError('Restaurant label must be a single line of at most 200 characters.')
         if self.maps_url is not None:
             if normalize_maps_url(self.maps_url) != self.maps_url:
                 raise ValidationError('Store the normalized Google Maps link.')
@@ -144,7 +155,11 @@ class Review:
 
 
 def _body(review: Review) -> str:
-    place = f'[Google Maps](<{maps_link(review.maps_url)}>)' if review.maps_url else 'Unknown (from memory)'
+    name = safe_text(review.restaurant_label) if review.restaurant_label else None
+    if review.maps_url:
+        place = f'[{name or "Google Maps"}](<{maps_link(review.maps_url)}>)'
+    else:
+        place = name or 'Unknown (from memory)'
     lines = [f'# Big Mac review #{review.source_issue}', '', f'Reviewer: [@{review.author_login}](https://github.com/{review.author_login})', '',
              f'Restaurant: {place}', '', f'Visit: {safe_text(review.visit_date or review.date_note or "Unknown")} · {review.order_type}', '',
              f'Type: {review.kind}', '', 'Original standard local recipe confirmed: no extras, removed ingredients, or special edition.', '']

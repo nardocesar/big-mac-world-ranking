@@ -87,3 +87,11 @@ class RankingTests(unittest.TestCase):
         renamed=review(124,{'login':'new-name','id':42,'type':'User'})
         corrected=parse_submission(body(**{'Contribution type':'Correction','Original review issue number':'123','Corrected review type':'Scored review'}),{'id':9,'login':'maintainer','type':'User'},125,old)
         self.assertIn('[@new-name]',render_contributors([corrected,renamed]))
+    def test_restaurant_label_uses_latest_titled_review_with_fallback(self):
+        a = parse_submission(body(), AUTHOR, 123, None, "[Review] McDonald's at Old Name")
+        b = parse_submission(body(), {'login': 'other', 'id': 9, 'type': 'User'}, 124, None, "[Review] McDonald's at New Name")
+        c = parse_submission(body(**{'Google Maps link': 'https://maps.app.goo.gl/Ccc'}), AUTHOR, 125, None, '')
+        page = render_restaurants([a, b, c])
+        self.assertIn("McDonald's at New Name", page)
+        self.assertNotIn('Old Name', page)
+        self.assertIn('Location ', page)
