@@ -1,0 +1,34 @@
+name: Review validation
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited]
+permissions: {}
+concurrency:
+  group: review-validation-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    concurrency:
+      group: review-state-${{ github.event.pull_request.head.ref }}
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      statuses: write
+    steps:
+      # Never check out the PR head: submitted review content is data only.
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Check current form and publish review validity status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: python -m scripts.reviews.check --pr "$PR_NUMBER" --status
