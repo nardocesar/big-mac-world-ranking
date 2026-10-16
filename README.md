@@ -8,7 +8,7 @@ This project started with a travel habit: visit McDonald's, order a Big Mac, and
 
 Each review represents **one Big Mac eaten at a specific restaurant on a specific date**. A single experience at one location does not represent an entire country.
 
-The main ranking considers **the standard local Big Mac recipe, without customizations**. Differences between local recipes are part of the experience. Special editions and customized orders can be documented, but are excluded from the main averages.
+**Only the original Big Mac using the standard local recipe is accepted: no extras, no ingredients removed, and no special editions.** Differences between standard local recipes are part of the experience. This requirement applies to all contributions, including reviews from memory.
 
 ## Criteria
 
@@ -65,14 +65,14 @@ When contributing, add a line here using the format `- City, country — visit d
 
 ### Required information
 
-- Your GitHub username, as the reviewer's public identifier.
-- Country, city, and restaurant name or address.
 - A Google Maps link to the specific McDonald's restaurant you visited. Open the restaurant's place listing in Google Maps and use **Share → Copy link**; link to the individual location, rather than a general search or city map.
 - Visit date in `YYYY-MM-DD` format.
 - Order type: dine-in, takeout, or delivery.
-- Confirmation of the standard local recipe, or a description of customizations or a special edition.
+- Confirmation that the order was an original Big Mac using the standard local recipe, with no extras, no ingredients removed, and no special editions.
 - All five scores and their explanations to qualify for the main ranking.
 - An overall comment about the experience.
+
+The PR author identifies the reviewer, and the Google Maps listing identifies the restaurant and its location; these do not need separate fields in the review template.
 
 Photos are optional. Use your own photos or photos you have permission to share, and avoid exposing other people. Price and local currency are also optional; specify whether the price covers the burger alone or a meal.
 
