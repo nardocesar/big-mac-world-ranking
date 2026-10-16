@@ -140,6 +140,4 @@ These accounts remain on record but **never count toward ranking averages**.
 
 ---
 
-<p align="center"><strong>One iconic burger. A world of opinions.</strong><br>Built by people who always find time for a Big Mac.</p>
-
-This is an independent community project with no affiliation with McDonald's. Big Mac and McDonald's are trademarks of their respective owners.
+<p align="center"><strong>One iconic burger. A world of opinions.</strong><br>Built by people who always find time for a Big Mac.<br /><sup><sub>This is an independent community project with no affiliation with McDonald's. Big Mac and McDonald's are trademarks of their respective owners.</sub></sup></p>
