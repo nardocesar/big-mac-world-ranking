@@ -80,7 +80,7 @@ def parse_submission(body: str, author: dict, issue_number: int, existing: Revie
     digest = hashlib.sha256(json.dumps([body, author['id'], author['login'], issue_number], ensure_ascii=True).encode()).hexdigest()
     review = Review(1, target if correction else issue_number, issue_number,
                     existing.author_id if correction else author['id'], existing.author_login if correction else author['login'],
-                    kind, restaurant_key(maps) if maps else None, maps, visit_date,
+                    kind, restaurant_key(maps) if maps else None, maps, maps, visit_date,
                     raw_date if visit_date is None else '', fields.get('Order type', ''), scores, explanations,
                     fields.get('Overall experience', ''), fields.get('Optional context', ''), digest, True)
     return review.validate()

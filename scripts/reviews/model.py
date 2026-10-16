@@ -80,6 +80,7 @@ class Review:
     kind: str
     restaurant_id: str | None
     maps_url: str | None
+    input_maps_url: str | None
     visit_date: str | None
     date_note: str
     order_type: str
@@ -107,6 +108,8 @@ class Review:
             raise ValidationError('Review type, order type, and recipe confirmations are required.')
         if not isinstance(self.submission_digest, str) or not re.fullmatch(r'[a-f0-9]{64}', self.submission_digest):
             raise ValidationError('Submission digest is required.')
+        if self.input_maps_url is not None and normalize_maps_url(self.input_maps_url) != self.input_maps_url:
+            raise ValidationError("Original submitted Maps URL must be normalized.")
         if self.maps_url is not None:
             if normalize_maps_url(self.maps_url) != self.maps_url:
                 raise ValidationError('Store the normalized Google Maps link.')
