@@ -1,7 +1,7 @@
 ---
 name: Submit a Big Mac review
 description: Share a visit. We create the review PR for you.
-title: "[Review] "
+title: "[Review] McDonald's at [street address], [city], [state], [country]"
 body:
 - type: markdown
   attributes:
@@ -9,7 +9,9 @@ body:
       ## Original Big Mac only
       No extras, no ingredients removed, and no special editions. Submit this form; automation creates a review PR for a maintainer to review. No fork or manual PR is needed.
 
-      For memory reviews, unknown dates, locations, and scores may be omitted. For scored reviews, all five scores and explanations, an exact date, and a Google Maps link are required.
+      For scored reviews, all five scores, an exact date, and a Google Maps link are required. For memory reviews, leave the scores unselected; unknown dates and locations may be omitted. Memory reviews never count toward restaurant averages.
+
+      Replace the bracketed parts of the title with the restaurant's street address, city, state, and country.
 - type: dropdown
   id: recipe
   attributes:
@@ -47,7 +49,7 @@ body:
   attributes:
     label: Google Maps link
     description: Open the exact restaurant in Google Maps → Share → Copy link. Required
-      for scored reviews. Unknown for a memory review? Leave blank and explain below.
+      for scored reviews. Unknown for a memory review? Leave blank and explain in Overall experience.
 - type: input
   id: visit_date
   attributes:
@@ -76,11 +78,6 @@ body:
     - '3'
     - '4'
     - '5'
-- type: textarea
-  id: explanation_0
-  attributes:
-    label: Flavor and balance explanation
-    description: Briefly explain what you observed. Required for scored reviews.
 - type: dropdown
   id: score_1
   attributes:
@@ -93,11 +90,6 @@ body:
     - '3'
     - '4'
     - '5'
-- type: textarea
-  id: explanation_1
-  attributes:
-    label: Texture explanation
-    description: Briefly explain what you observed. Required for scored reviews.
 - type: dropdown
   id: score_2
   attributes:
@@ -110,11 +102,6 @@ body:
     - '3'
     - '4'
     - '5'
-- type: textarea
-  id: explanation_2
-  attributes:
-    label: Temperature explanation
-    description: Briefly explain what you observed. Required for scored reviews.
 - type: dropdown
   id: score_3
   attributes:
@@ -127,11 +114,6 @@ body:
     - '3'
     - '4'
     - '5'
-- type: textarea
-  id: explanation_3
-  attributes:
-    label: Perceived freshness explanation
-    description: Briefly explain what you observed. Required for scored reviews.
 - type: dropdown
   id: score_4
   attributes:
@@ -145,25 +127,12 @@ body:
     - '4'
     - '5'
 - type: textarea
-  id: explanation_4
-  attributes:
-    label: Assembly explanation
-    description: Briefly explain what you observed. Required for scored reviews.
-- type: textarea
   id: experience
   attributes:
     label: Overall experience
-    description: 'What stood out? For memory reviews, state what is uncertain. Avoid
-      adding headings starting with ###.'
-  validations:
-    required: true
-- type: textarea
-  id: context
-  attributes:
-    label: Optional context
-    description: Price and currency, burger vs. meal, time before eating, service,
-      atmosphere, and photo links. These do not affect scores. Photo links are recorded
-      as text; use the source issue to view attachments.
+    description: 'Optional. What stood out? You can mention price, service, atmosphere,
+      or photos here; they do not affect scores. For memory reviews, state what is
+      uncertain. Avoid adding headings starting with ###.'
 - type: checkboxes
   id: confirmations
   attributes:

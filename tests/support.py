@@ -1,4 +1,5 @@
 from copy import deepcopy
+from scripts.reviews.model import CRITERIA
 
 AUTHOR = {'login': 'traveler', 'id': 42, 'type': 'User'}
 FIELDS = {
@@ -10,17 +11,11 @@ FIELDS = {
     'Visit date': '2025-01-02',
     'Order type': 'Dine-in',
     'Flavor and balance score': '4',
-    'Flavor and balance explanation': 'Balanced sauce.',
     'Texture score': '3',
-    'Texture explanation': 'Soft bun and crisp lettuce.',
     'Temperature score': '4',
-    'Temperature explanation': 'Warm enough.',
     'Perceived freshness score': '3',
-    'Perceived freshness explanation': 'Fresh lettuce.',
     'Assembly score': '5',
-    'Assembly explanation': 'Evenly distributed.',
     'Overall experience': 'A good lunch.',
-    'Optional context': '_No response_',
     'Confirmations': '- [X] I personally ate this Big Mac.\n- [X] It was the original standard local recipe: no extras, no ingredients removed, and no special edition.\n- [X] I have permission to share any photos included.',
 }
 
@@ -28,3 +23,6 @@ def body(**overrides):
     fields = deepcopy(FIELDS)
     fields.update(overrides)
     return '\n\n'.join(f'### {key}\n\n{value}' for key, value in fields.items())
+
+# Unselected optional dropdowns, as GitHub renders them for memory reviews.
+NO_SCORES = {f'{criterion} score': 'None' for criterion in CRITERIA}
