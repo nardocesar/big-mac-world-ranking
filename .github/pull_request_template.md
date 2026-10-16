@@ -1,59 +1,59 @@
-## Tipo de contribuição
+## Contribution type
 
-- [ ] Nova avaliação com notas
-- [ ] Relato de memória (fora das médias)
-- [ ] Correção de avaliação existente — PR original: #
+- [ ] New scored review
+- [ ] Review from memory (excluded from averages)
+- [ ] Correction to an existing review — original PR: #
 
-## Local e visita
+## Location and visit
 
-- **Pessoa que avaliou (@usuário do GitHub):**
-- **País:**
-- **Cidade:**
-- **Loja (endereço ou link do mapa):**
-- **Data da visita (AAAA-MM-DD):**
-- **Modalidade (salão / retirada / delivery):**
-- **Pedido (receita padrão local / personalizado / versão especial):**
-- **Alterações ou versão especial, se houver:**
+- **Reviewer (@GitHub username):**
+- **Country:**
+- **City:**
+- **Restaurant (address or map link):**
+- **Visit date (YYYY-MM-DD):**
+- **Order type (dine-in / takeout / delivery):**
+- **Order (standard local recipe / customized / special edition):**
+- **Customizations or special edition, if applicable:**
 
-<!-- Para relatos de memória, registre a data aproximada ou “não lembro”. Não invente informações. Pedidos personalizados e versões especiais ficam fora da média principal. -->
+<!-- For reviews from memory, provide an approximate date or “I don't remember.” Do not invent information. Customized orders and special editions are excluded from the main averages. -->
 
-## Notas
+## Scores
 
-<!-- Notas inteiras: 1 = muito ruim, 2 = abaixo do esperado, 3 = bom/padrão, 4 = muito bom, 5 = excepcional. Em relatos de memória, deixe esta seção sem preencher se não houver lembrança suficiente; eles não entram nas médias. -->
+<!-- Whole-number scores: 1 = very poor, 2 = below expectations, 3 = good/standard, 4 = very good, 5 = exceptional. For reviews from memory, leave this section blank if you cannot recall enough detail; these reviews do not count toward averages. -->
 
-| Critério | Nota (1–5) | Justificativa |
+| Criterion | Score (1–5) | Explanation |
 | --- | --- | --- |
-| Sabor e equilíbrio | | |
-| Textura | | |
-| Temperatura | | |
-| Frescor percebido | | |
-| Montagem | | |
+| Flavor and balance | | |
+| Texture | | |
+| Temperature | | |
+| Perceived freshness | | |
+| Assembly | | |
 
-**Nota final:** /5
+**Final score:** /5
 
-<!-- Some as cinco notas e divida por 5. Todos os critérios têm o mesmo peso. -->
+<!-- Add the five scores and divide by 5. All criteria have equal weight. -->
 
-## Como foi a experiência?
+## How was the experience?
 
-<!-- Conte o que se destacou e o que poderia melhorar. Separe comentários sobre preço, atendimento e ambiente das notas do sanduíche. Para relatos de memória, explique o que lembra e quais informações são incertas. -->
+<!-- Describe what stood out and what could improve. Keep comments about price, service, and atmosphere separate from the burger scores. For reviews from memory, explain what you remember and which details are uncertain. -->
 
-## Informações opcionais
+## Optional information
 
-- **Preço e moeda local:**
-- **O preço é do sanduíche avulso ou do combo?**
-- **Tempo aproximado entre receber o pedido e comer:**
-- **Foto:**
+- **Price and local currency:**
+- **Does the price cover the burger alone or a meal?**
+- **Approximate time between receiving the order and eating:**
+- **Photo:**
 
-## Correção, se aplicável
+## Correction, if applicable
 
-<!-- Indique o que mudou e por quê. Uma correção substitui o registro anterior e não conta como nova avaliação. -->
+<!-- Explain what changed and why. A correction replaces the previous record and does not count as a new review. -->
 
 ## Checklist
 
-- [ ] Li os critérios e as regras de contribuição no README.
-- [ ] Consumi pessoalmente o sanduíche descrito.
-- [ ] Esta contribuição não duplica uma avaliação minha da mesma visita, ou está identificada como correção.
-- [ ] Identifiquei a loja, a modalidade de consumo e eventuais alterações no pedido.
-- [ ] Preenchi as cinco notas com justificativas e a data exata, ou marquei como relato de memória com as incertezas explícitas.
-- [ ] Adicionei minha visita ao índice do README (ou atualizei o registro, se for correção).
-- [ ] Se anexei fotos, tenho permissão para compartilhá-las.
+- [ ] I read the criteria and contribution rules in the README.
+- [ ] I personally ate the burger described here.
+- [ ] This contribution does not duplicate my review of the same visit, or it is identified as a correction.
+- [ ] I identified the restaurant, order type, and any customizations.
+- [ ] I provided all five scores with explanations and the exact date, or marked this as a review from memory with explicit uncertainties.
+- [ ] I added my visit to the README index (or updated the entry for a correction).
+- [ ] If I attached photos, I have permission to share them.

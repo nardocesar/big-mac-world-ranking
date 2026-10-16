@@ -1,96 +1,96 @@
 # 🍔 Big Mac World Ranking
 
-Um ranking coletivo dos Big Macs pelo mundo, construído a partir de experiências reais de quem os comeu.
+A community ranking of Big Macs around the world, built from real experiences by the people who ate them.
 
-O projeto nasceu de um hábito: visitar o McDonald's durante viagens, pedir um Big Mac e comparar com os anteriores. Aqui, essa curiosidade vira um registro aberto, com critérios comuns e contribuições da comunidade. Todas as avaliações têm o mesmo peso, inclusive as de quem criou o projeto.
+This project started with a travel habit: visit McDonald's, order a Big Mac, and compare it with previous ones. Here, that curiosity becomes an open record with shared criteria and community contributions. Every review carries the same weight, including reviews by the project's creator.
 
-## O que avaliamos
+## What we review
 
-Cada avaliação representa **um Big Mac consumido em uma loja, em determinada data**. Uma experiência em uma filial não representa, sozinha, um país inteiro.
+Each review represents **one Big Mac eaten at a specific restaurant on a specific date**. A single experience at one location does not represent an entire country.
 
-A comparação principal considera o **Big Mac com a receita padrão local, sem personalizações**. Diferenças entre as receitas locais fazem parte da experiência; versões especiais e pedidos personalizados podem ser relatados, mas ficam fora da média principal.
+The main ranking considers **the standard local Big Mac recipe, without customizations**. Differences between local recipes are part of the experience. Special editions and customized orders can be documented, but are excluded from the main averages.
 
-## Critérios
+## Criteria
 
-Dê uma nota inteira de **1 a 5** para cada critério e justifique brevemente o que observou.
+Give each criterion a whole-number score from **1 to 5**, with a brief explanation of what you observed.
 
-| Critério | O que observar |
+| Criterion | What to look for |
 | --- | --- |
-| Sabor e equilíbrio | Carne, molho, queijo e vegetais combinam bem? Há excesso ou falta de algum ingrediente? |
-| Textura | O pão está macio, a alface crocante e a carne sem estar seca ou borrachuda? |
-| Temperatura | O sanduíche chegou na temperatura esperada para comer? |
-| Frescor percebido | Pão e vegetais parecem frescos? Há sinais de que o sanduíche ficou esperando pronto? Avalie apenas sua percepção, sem presumir condições da cozinha. |
-| Montagem | Os ingredientes estão bem distribuídos, em proporções adequadas, e o sanduíche é fácil de comer? |
+| Flavor and balance | Do the beef, sauce, cheese, and vegetables work well together? Is there too much or too little of any ingredient? |
+| Texture | Is the bun soft, the lettuce crisp, and the beef neither dry nor rubbery? |
+| Temperature | Did the burger arrive at the temperature you would expect for eating? |
+| Perceived freshness | Do the bun and vegetables seem fresh? Are there signs that the burger sat ready for a while? Describe your perception without making assumptions about kitchen conditions. |
+| Assembly | Are the ingredients evenly distributed and well proportioned? Is the burger easy to eat? |
 
-Use a mesma escala em todos os critérios:
+Use the same scale for every criterion:
 
-| Nota | Referência |
+| Score | Reference |
 | --- | --- |
-| 1 | Muito ruim: problemas marcantes que prejudicam bastante a experiência. |
-| 2 | Abaixo do esperado: problemas perceptíveis que prejudicam a experiência. |
-| 3 | Bom/padrão: atende ao esperado para um Big Mac. |
-| 4 | Muito bom: se destaca positivamente no critério. |
-| 5 | Excepcional: uma experiência de destaque, com uma justificativa concreta. |
+| 1 | Very poor: major problems that seriously hurt the experience. |
+| 2 | Below expectations: noticeable problems that hurt the experience. |
+| 3 | Good/standard: meets expectations for a Big Mac. |
+| 4 | Very good: stands out positively on this criterion. |
+| 5 | Exceptional: a standout experience supported by a concrete explanation. |
 
-**Preço, atendimento e ambiente não entram na nota do sanduíche.** Você pode registrá-los como contexto, separadamente.
+**Price, service, and atmosphere do not affect the burger's score.** You can record them separately as context.
 
-## Como calcular o ranking
+## How the ranking works
 
-A nota de cada avaliação é a média simples dos cinco critérios:
+Each review's final score is the simple average of its five criterion scores:
 
-`Nota final = (sabor + textura + temperatura + frescor + montagem) / 5`
+`Final score = (flavor + texture + temperature + freshness + assembly) / 5`
 
-Exemplo: notas 4, 3, 4, 3 e 5 resultam em **3,8/5**.
+For example, scores of 4, 3, 4, 3, and 5 produce **3.8/5**.
 
-O ranking coletivo de uma loja, cidade ou país usa a média das notas finais das avaliações elegíveis daquele local. Cada avaliação aceita tem o mesmo peso. Calculamos com os valores sem arredondar e exibimos duas casas decimais; médias exatas iguais ficam empatadas.
+The community ranking for a restaurant, city, or country uses the average final score of eligible reviews for that location. Every accepted review has the same weight. Calculate using unrounded values and display two decimal places; identical exact averages are tied.
 
-Toda média publicada deve acompanhar o **número de avaliações e de pessoas que contribuíram**, além do período das visitas. Uma média baseada em uma única visita ainda é uma amostra inicial, e deve ser interpretada assim.
+Every published average must include the **number of reviews and unique contributors**, as well as the date range of the visits. An average based on one visit is still an initial sample and should be interpreted accordingly.
 
-Consumo no salão, retirada e delivery são aceitos, desde que identificados. Ao comparar resultados, mantenha essa informação visível: transporte e tempo até o consumo podem afetar a experiência.
+Dine-in, takeout, and delivery reviews are welcome when clearly labeled. Keep this information visible when comparing results: transport and time before eating can affect the experience.
 
-## Como contribuir
+## How to contribute
 
-1. Abra um pull request usando o [template de contribuição](.github/pull_request_template.md).
-2. Use o título `Avaliação: cidade, país — AAAA-MM-DD`.
-3. Preencha uma avaliação por PR, incluindo todos os campos obrigatórios e as cinco notas com justificativas.
-4. Aguarde a revisão. Podemos pedir informações que faltaram ou esclarecer a aplicação dos critérios antes de aceitar a contribuição.
+1. Open a pull request using the [contribution template](.github/pull_request_template.md).
+2. Use the title `Review: city, country — YYYY-MM-DD`.
+3. Submit one review per PR, including all required fields and the five scores with explanations.
+4. Wait for review. We may ask for missing information or clarify how the criteria apply before accepting the contribution.
 
-**Nesta fase, as avaliações ficam registradas no corpo dos PRs aceitos e mesclados.** Não é necessário criar um arquivo de dados para contribuir; abra o PR com uma pequena alteração no repositório, como adicionar uma linha à lista abaixo, e preencha o template no corpo do PR. O ranking consolidado ainda não é gerado automaticamente.
+**At this stage, reviews are recorded in the bodies of accepted, merged PRs.** You do not need to create a data file to contribute. Open a PR with a small repository change, such as adding a line to the index below, and fill out the template in the PR body. The consolidated ranking is not generated automatically yet.
 
-### Índice de avaliações
+### Review index
 
-Ao contribuir, acrescente aqui uma linha no formato `- Cidade, país — data da visita — @usuario`. O PR associado à alteração contém a avaliação completa.
+When contributing, add a line here using the format `- City, country — visit date — @username`. The PR associated with that change contains the full review.
 
-<!-- Adicione as avaliações abaixo desta linha. -->
+<!-- Add reviews below this line. -->
 
-### Informações obrigatórias
+### Required information
 
-- Seu usuário do GitHub, como identificação pública da pessoa que avaliou.
-- País, cidade e identificação da loja (endereço ou link do mapa que permita distingui-la).
-- Data da visita, no formato `AAAA-MM-DD`.
-- Modalidade: salão, retirada ou delivery.
-- Confirmação da receita padrão local ou descrição das alterações/versão especial.
-- As cinco notas e suas justificativas, para entrar no ranking principal.
-- Um comentário geral sobre a experiência.
+- Your GitHub username, as the reviewer's public identifier.
+- Country, city, and restaurant identification (an address or map link that distinguishes the location).
+- Visit date in `YYYY-MM-DD` format.
+- Order type: dine-in, takeout, or delivery.
+- Confirmation of the standard local recipe, or a description of customizations or a special edition.
+- All five scores and their explanations to qualify for the main ranking.
+- An overall comment about the experience.
 
-Fotos são opcionais. Se incluir uma, use uma foto sua ou que tenha permissão para compartilhar e evite expor outras pessoas. Preço e moeda local também são opcionais; indique se o valor é do sanduíche avulso ou do combo.
+Photos are optional. Use your own photos or photos you have permission to share, and avoid exposing other people. Price and local currency are also optional; specify whether the price covers the burger alone or a meal.
 
-### Regras para manter a comparação útil
+### Rules for useful comparisons
 
-- Avalie apenas o que você consumiu pessoalmente. Não envie notas em nome de outras pessoas.
-- Registre uma avaliação por pessoa e por visita. Não divida o mesmo sanduíche em várias contribuições suas nem duplique avaliações.
-- Novas visitas à mesma loja são bem-vindas: registre a data de cada uma.
-- Baseie as notas na experiência observada e justifique-as. Discordar de uma avaliação não é motivo para rejeitá-la.
-- A revisão verifica completude, coerência com os critérios e duplicações; não exige concordância com seu gosto.
-- Para corrigir uma avaliação aceita, abra um PR indicando o PR original e o que mudou. A correção substitui a avaliação anterior e não conta como uma nova visita.
-- Mantenha os comentários respeitosos e focados na experiência.
+- Review only what you personally ate. Do not submit scores on someone else's behalf.
+- Submit one review per person per visit. Do not submit multiple reviews of the same burger or duplicate existing reviews.
+- Repeat visits to the same restaurant are welcome: record each visit's date.
+- Base scores on your observed experience and explain them. Disagreement with a review is not a reason to reject it.
+- Review checks focus on completeness, consistency with the criteria, and duplicates; agreement with your taste is not required.
+- To correct an accepted review, open a PR referencing the original PR and explain what changed. A correction replaces the previous review and does not count as a new visit.
+- Keep comments respectful and focused on the experience.
 
-### Avaliações de memória
+### Reviews from memory
 
-Histórias antigas também são bem-vindas, mesmo sem data exata ou lembrança suficiente para dar notas detalhadas. Marque a contribuição como **relato de memória**, informe apenas o que lembra e deixe as incertezas explícitas.
+Older stories are welcome, even without an exact date or enough detail to assign scores. Mark the contribution as a **review from memory**, share only what you remember, and make uncertainties explicit.
 
-Esses relatos ficam registrados, mas **não entram nas médias do ranking**. Não invente datas ou notas para completar o formulário.
+These accounts remain on record but **do not count toward ranking averages**. Do not invent dates or scores to complete the form.
 
-## Independência
+## Independence
 
-Este é um projeto independente da comunidade, sem afiliação com o McDonald's. Big Mac e McDonald's são marcas de seus respectivos titulares.
+This is an independent community project with no affiliation with McDonald's. Big Mac and McDonald's are trademarks of their respective owners.
