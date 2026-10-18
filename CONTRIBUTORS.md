@@ -4,7 +4,7 @@ Every accepted review counts once. Corrections replace a review and never add a 
 
 | Rank | Contributor | Reviews | Source reviews |
 | --- | --- | --- | --- |
-| 1 | [@nardocesar](https://github.com/nardocesar) | 4 | [#6](reviews/6.md), [#12](reviews/12.md), [#15](reviews/15.md), [#18](reviews/18.md) |
+| 1 | [@nardocesar](https://github.com/nardocesar) | 5 | [#6](reviews/6.md), [#12](reviews/12.md), [#15](reviews/15.md), [#18](reviews/18.md), [#20](reviews/20.md) |
 
 ---
 Generated from accepted files in `reviews/`. Do not edit this page manually.
